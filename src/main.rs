@@ -36,8 +36,18 @@ fn main() {
 
     println!("Displaying {} weapon results", results_wr.len());
     for weapon_result in results_wr {
-        println!("{}", weapon_result.condition);
-        println!("----------\n");
-        println!("{}", weapon_result.effect);
+        let formatted_spawn_weapon_id = match weapon_result.spawn_weapon_id {
+            Some(n) => n.to_string(),
+            None => "".to_string(),
+        };
+
+        println!("AddWeaponResult(NewWeaponType, \"{}\", \"{}\", \"{}\", {}, {}, \"{}\");",
+            weapon_result.condition,
+            weapon_result.effect,
+            weapon_result.target,
+            weapon_result.minimum_effect,
+            weapon_result.maximum_effect,
+            formatted_spawn_weapon_id
+        );
     }
 }
