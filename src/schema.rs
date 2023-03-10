@@ -1,6 +1,19 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    weapon_results (id) {
+        id -> Integer,
+        weapon_id -> Integer,
+        condition -> Text,
+        effect -> Text,
+        target -> Text,
+        minimum_effect -> Float,
+        maximum_effect -> Float,
+        spawn_weapon_id -> Nullable<Integer>,
+    }
+}
+
+diesel::table! {
     weapons (id) {
         id -> Integer,
         name -> Text,
@@ -31,3 +44,10 @@ diesel::table! {
         instant_hit_threshold -> Integer,
     }
 }
+
+diesel::joinable!(weapon_results -> weapons (weapon_id));
+
+diesel::allow_tables_to_appear_in_same_query!(
+    weapon_results,
+    weapons,
+);

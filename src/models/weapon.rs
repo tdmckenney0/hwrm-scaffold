@@ -1,6 +1,8 @@
 use diesel::prelude::*;
+use crate::schema::{weapons, weapon_results};
 
-#[derive(Queryable)]
+#[derive(Queryable, Selectable, Identifiable)]
+#[diesel(table_name = weapons)]
 pub struct Weapon {
     pub id: i32,
     pub name: String,
@@ -29,4 +31,18 @@ pub struct Weapon {
     pub track_targets_outside_range: i32,
     pub wait_for_code_red: f32,
     pub instant_hit_threshold: i32,
+}
+
+#[derive(Queryable, Selectable, Identifiable, Associations)]
+#[diesel(belongs_to(Weapon))]
+#[diesel(table_name = weapon_results)]
+pub struct WeaponResult {
+    pub id: i32,
+    pub weapon_id: i32,
+    pub condition: String,
+    pub effect: String,
+    pub target: String,
+    pub minimum_effect: f32,
+    pub maximum_effect: f32,
+    pub spawn_weapon_id: Option<i32>
 }
