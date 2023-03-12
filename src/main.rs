@@ -2,6 +2,7 @@ pub mod schema;
 pub mod models;
 
 use diesel::prelude::*;
+use diesel::insert_into;
 use dotenvy::dotenv;
 use std::env;
 
@@ -50,4 +51,15 @@ fn main() {
             formatted_spawn_weapon_id
         );
     }
+
+    let start_weapon_config = models::weapon::StartWeaponConfig::new("hgn_dummyfrigategun2".to_string());
+
+    diesel::delete(weapons.filter(name.like(&start_weapon_config.name)))
+        .execute(connection)
+        .expect("Error deleting posts");
+
+    insert_into(weapons)
+        .values(start_weapon_config)
+        .execute(connection)
+        .expect("Error inserting to weapons");
 }
