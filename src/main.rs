@@ -52,11 +52,12 @@ fn main() {
         );
     }
 
-    let start_weapon_config = models::weapon::StartWeaponConfig::new("hgn_dummyfrigategun2".to_string());
+    let weapon_config_lua = "StartWeaponConfig(NewWeaponType,\"AnimatedTurret\",\"Bullet\",\"kinetic_rapid\",\"Normal\",1200,5000,0,0,0,0,1,1,1,0.1,2,5,1,1,120,120,0.1,\"Normal\",0,0,0)".to_string();
+    let start_weapon_config = models::weapon::StartWeaponConfig::new("hgn_dummyfrigategun3".to_string(), weapon_config_lua);
 
     diesel::delete(weapons.filter(name.like(&start_weapon_config.name)))
         .execute(connection)
-        .expect("Error deleting posts");
+        .expect("Error deleting `hgn_dummyfrigategun3`");
 
     insert_into(weapons)
         .values(start_weapon_config)

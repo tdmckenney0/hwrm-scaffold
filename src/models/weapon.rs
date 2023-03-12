@@ -1,5 +1,6 @@
 use diesel::prelude::*;
 use crate::schema::{weapons, weapon_results};
+use regex::Regex;
 
 /// Diesel Models.
 #[derive(Queryable, Selectable, Identifiable)]
@@ -82,10 +83,43 @@ pub struct StartWeaponConfig {
 }
 
 impl StartWeaponConfig {
-    pub fn new (name: String) -> Self {
+    pub fn new (name: String, start_weapon_config: String) -> Self {
+       let rx = Regex::new(r"^StartWeaponConfig\(NewWeaponType,\s*(.*)\)").unwrap();
+
+        let args = match rx.captures(&start_weapon_config).unwrap().get(1) {
+            Some(x) => x.as_str(),
+            None => ""
+        };
+
+        let split: Vec<&str> = args.split(",").collect();
+
         Self {
             name,
-            ..Self::default()
+            weapon_type: split[0].to_string().replace("\"", ""),
+            weapon_fire_type: split[1].to_string().replace("\"", ""),
+            weapon_fire_name: split[2].to_string().replace("\"", ""),
+            activation: split[3].to_string().replace("\"", ""),
+            fire_speed: split[4].parse().unwrap(),
+            fire_range: split[5].parse().unwrap(),
+            fire_radius: split[6].parse().unwrap(),
+            fire_lifetime: split[7].parse().unwrap(),
+            fire_anticipation_time: split[8].parse().unwrap(),
+            fire_axis: split[9].parse().unwrap(),
+            max_effects_spawned: split[10].parse().unwrap(),
+            lead_target: split[11].parse().unwrap(),
+            check_line_of_fire: split[12].parse().unwrap(),
+            fire_time: split[13].parse().unwrap(),
+            burst_fire_time: split[14].parse().unwrap(),
+            burst_wait_time: split[15].parse().unwrap(),
+            shoot_at_secondaries: split[16].parse().unwrap(),
+            shoot_at_surroundings: split[17].parse().unwrap(),
+            max_azimuth_speed: split[18].parse().unwrap(),
+            max_declination_speed: split[19].parse().unwrap(),
+            speed_multiplier: split[20].parse().unwrap(),
+            shield_penetration: split[21].to_string().replace("\"", ""),
+            track_targets_outside_range: split[22].parse().unwrap(),
+            wait_for_code_red: split[23].parse().unwrap(),
+            instant_hit_threshold: split[24].parse().unwrap()
         }
     }
 
