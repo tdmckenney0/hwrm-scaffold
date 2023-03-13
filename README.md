@@ -1,3 +1,5 @@
-# Homeworld Remastered Script Editor
+# Scaffold
 
-Work in Progress
+![Kushan Mothership Scaffold](./scaffold.png)
+
+Scaffold is a tool for developing mods for Homeworld: Remastered.
