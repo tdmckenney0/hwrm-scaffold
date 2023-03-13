@@ -163,3 +163,21 @@ pub struct WeaponResult {
     pub maximum_effect: f32,
     pub spawn_weapon_id: Option<i32>
 }
+
+impl fmt::Display for WeaponResult {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let formatted_spawn_weapon_id = match self.spawn_weapon_id {
+            Some(n) => n.to_string(),
+            None => "".to_string(),
+        };
+
+        write!(f, "AddWeaponResult(NewWeaponType, \"{}\", \"{}\", \"{}\", {}, {}, \"{}\");",
+            self.condition,
+            self.effect,
+            self.target,
+            self.minimum_effect,
+            self.maximum_effect,
+            formatted_spawn_weapon_id
+        )
+    }
+}

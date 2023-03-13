@@ -24,6 +24,7 @@ fn main() {
         .expect("Error loading weapons");
 
     println!("Displaying {} weapons\n------------\n", results.len());
+
     for weapon in &results {
         println!("{} -> {}\n", weapon.name, weapon);
     }
@@ -34,20 +35,9 @@ fn main() {
         .expect("Error loading weapon results");
 
     println!("Displaying {} weapon results\n------------\n", results_wr.len());
-    for weapon_result in results_wr {
-        let formatted_spawn_weapon_id = match weapon_result.spawn_weapon_id {
-            Some(n) => n.to_string(),
-            None => "".to_string(),
-        };
 
-        println!("AddWeaponResult(NewWeaponType, \"{}\", \"{}\", \"{}\", {}, {}, \"{}\");",
-            weapon_result.condition,
-            weapon_result.effect,
-            weapon_result.target,
-            weapon_result.minimum_effect,
-            weapon_result.maximum_effect,
-            formatted_spawn_weapon_id
-        );
+    for weapon_result in results_wr {
+        println!("{}", weapon_result);
     }
 
     let weapon_config_lua = "StartWeaponConfig(NewWeaponType,\"AnimatedTurret\",\"Bullet\",\"kinetic_rapid\",\"Normal\",1200,5000,0,0,0,0,1,1,1,0.1,2,5,1,1,120,120,0.1,\"Normal\",0,0,0)".to_string();
