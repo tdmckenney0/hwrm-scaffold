@@ -114,7 +114,7 @@ impl StartWeaponConfig {
             None => ""
         };
 
-        let split: Vec<&str> = args.split(",").collect();
+        let split: Vec<&str> = args.split(",").collect::<Vec<&str>>().iter().map(|x| x.trim()).collect();
 
         Self {
             name,
