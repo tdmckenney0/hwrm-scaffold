@@ -2,7 +2,9 @@ use diesel::prelude::*;
 use crate::schema::{weapons, weapon_results};
 use regex::Regex;
 
-/// Diesel Models.
+///
+/// Weapon
+///
 #[derive(Queryable, Selectable, Identifiable)]
 #[diesel(table_name = weapons)]
 pub struct Weapon {
@@ -33,20 +35,6 @@ pub struct Weapon {
     pub track_targets_outside_range: i32,
     pub wait_for_code_red: f32,
     pub instant_hit_threshold: i32,
-}
-
-#[derive(Queryable, Selectable, Identifiable, Associations)]
-#[diesel(belongs_to(Weapon))]
-#[diesel(table_name = weapon_results)]
-pub struct WeaponResult {
-    pub id: i32,
-    pub weapon_id: i32,
-    pub condition: String,
-    pub effect: String,
-    pub target: String,
-    pub minimum_effect: f32,
-    pub maximum_effect: f32,
-    pub spawn_weapon_id: Option<i32>
 }
 
 /// Parse Result from the `StartWeaponConfig(...)` lua function call.
@@ -83,8 +71,10 @@ pub struct StartWeaponConfig {
 }
 
 impl StartWeaponConfig {
+    /// Parse the `StartWeaponConfig(...)` lua call into an instance.
+    /// This whole process needs to be optimized at some point.
     pub fn new (name: String, start_weapon_config: String) -> Self {
-       let rx = Regex::new(r"^StartWeaponConfig\(NewWeaponType,\s*(.*)\)").unwrap();
+        let rx = Regex::new(r"^StartWeaponConfig\(NewWeaponType,\s*(.*)\)").unwrap();
 
         let args = match rx.captures(&start_weapon_config).unwrap().get(1) {
             Some(x) => x.as_str(),
@@ -122,8 +112,21 @@ impl StartWeaponConfig {
             instant_hit_threshold: split[24].parse().unwrap()
         }
     }
+}
 
-    pub fn to_string() -> String {
-        "".to_string()
-    }
+///
+/// Weapon Result
+///
+#[derive(Queryable, Selectable, Identifiable, Associations)]
+#[diesel(belongs_to(Weapon))]
+#[diesel(table_name = weapon_results)]
+pub struct WeaponResult {
+    pub id: i32,
+    pub weapon_id: i32,
+    pub condition: String,
+    pub effect: String,
+    pub target: String,
+    pub minimum_effect: f32,
+    pub maximum_effect: f32,
+    pub spawn_weapon_id: Option<i32>
 }
