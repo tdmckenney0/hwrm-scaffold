@@ -1,3 +1,4 @@
+use std::fmt;
 use diesel::prelude::*;
 use crate::schema::{weapons, weapon_results};
 use regex::Regex;
@@ -35,6 +36,38 @@ pub struct Weapon {
     pub track_targets_outside_range: i32,
     pub wait_for_code_red: f32,
     pub instant_hit_threshold: i32,
+}
+
+impl fmt::Display for Weapon {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "StartWeaponConfig(NewWeaponType,\"{}\",\"{}\",\"{}\",\"{}\",{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},\"{}\",{},{},{});",
+            self.weapon_type,
+            self.weapon_fire_type,
+            self.weapon_fire_name,
+            self.activation,
+            self.fire_speed,
+            self.fire_range,
+            self.fire_radius,
+            self.fire_lifetime,
+            self.fire_anticipation_time,
+            self.fire_axis,
+            self.max_effects_spawned,
+            self.lead_target,
+            self.check_line_of_fire,
+            self.fire_time,
+            self.burst_fire_time,
+            self.burst_wait_time,
+            self.shoot_at_secondaries,
+            self.shoot_at_surroundings,
+            self.max_azimuth_speed,
+            self.max_declination_speed,
+            self.speed_multiplier,
+            self.shield_penetration,
+            self.track_targets_outside_range,
+            self.wait_for_code_red,
+            self.instant_hit_threshold
+        )
+    }
 }
 
 /// Parse Result from the `StartWeaponConfig(...)` lua function call.

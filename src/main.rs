@@ -23,11 +23,9 @@ fn main() {
         .load::<models::weapon::Weapon>(connection)
         .expect("Error loading weapons");
 
-    println!("Displaying {} weapons", results.len());
+    println!("Displaying {} weapons\n------------\n", results.len());
     for weapon in &results {
-        println!("{}", weapon.name);
-        println!("----------\n");
-        println!("{}", weapon.weapon_type);
+        println!("{} -> {}\n", weapon.name, weapon);
     }
 
     let results_wr = models::weapon::WeaponResult::belonging_to(&results)
@@ -35,7 +33,7 @@ fn main() {
         .load(connection)
         .expect("Error loading weapon results");
 
-    println!("Displaying {} weapon results", results_wr.len());
+    println!("Displaying {} weapon results\n------------\n", results_wr.len());
     for weapon_result in results_wr {
         let formatted_spawn_weapon_id = match weapon_result.spawn_weapon_id {
             Some(n) => n.to_string(),
