@@ -3,12 +3,29 @@ pub mod models;
 
 use diesel::prelude::*;
 use diesel::insert_into;
-use dotenvy::dotenv;
-use std::env;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{ Path, PathBuf };
 
-fn find_files_with_extension(root_path: &PathBuf, extension: &str) -> Vec<PathBuf> {
+use clap::Parser;
+
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Path to the Homeworld RM 'data/' directory for export. If both this and `--import-dir` are the same, the import will be performed first.
+    #[arg(long, short)]
+    export_dir: Option<String>,
+
+    /// Path to the Homeworld RM 'data/' directory for import. If both this and `--export-dir` are the same, the import will be performed first.
+    #[arg(long, short)]
+    import_dir: Option<String>,
+
+    /// Path to Database file; If no directories provided, the database will be migrated only.
+    #[arg(long, short)]
+    db: String
+}
+
+/// Find files with a specific extension.
+pub fn find_files_with_extension(root_path: &Path, extension: &str) -> Vec<PathBuf> {
     let mut files = vec![];
     if let Ok(entries) = fs::read_dir(root_path) {
         for entry in entries {
@@ -26,21 +43,22 @@ fn find_files_with_extension(root_path: &PathBuf, extension: &str) -> Vec<PathBu
     files
 }
 
-pub fn establish_connection() -> SqliteConnection {
-    dotenv().ok();
+/// Establish Connection to Sqlite Database.
+pub fn establish_connection(db_path: &Path) -> SqliteConnection {
+    let final_path = db_path.canonicalize().expect("Valid Database URL required!");
 
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let database_url: String = format!("file:{}", final_path.display());
+
     SqliteConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
-fn main() {
+/// Import "data" directory into a Sqlite database.
+pub fn import(connection: &mut SqliteConnection, data_dir: &Path) {
     use crate::schema::weapons::dsl::*;
 
-    let connection = &mut establish_connection();
-    let root_path = PathBuf::from(env::var("WEAPON_DIR").expect("WEAPON_DIR must be set"));
     let extension = "wepn";
-    let files = find_files_with_extension(&root_path, extension);
+    let files = find_files_with_extension(data_dir, extension);
     let mut weapons_to_insert: Vec<models::weapon::StartWeaponConfig> = Vec::new();
 
     // Delete all weapons first.
@@ -67,17 +85,22 @@ fn main() {
 
     insert_into(weapons)
         .values(weapons_to_insert)
-        .execute(connection);
+        .execute(connection)
+        .expect("Could not insert weapons!");
+}
 
-    // List Weapons.
-    let results = weapons
-        .limit(10)
-        .load::<models::weapon::Weapon>(connection)
-        .expect("Error loading weapons");
+fn main() {
+    let args = Args::parse();
 
-    println!("Displaying {} weapons\n------------\n", results.len());
+    let connection = &mut establish_connection(Path::new(&args.db));
 
-    for weapon in &results {
-        println!("{} -> {}\n", weapon.name, weapon);
+    if let Some(dir) = args.import_dir {
+        println!("Importing {} to {}...", dir, args.db);
+
+        import(connection, Path::new(&dir));
+    }
+
+    if let Some(dir) = args.export_dir {
+        println!("Exporting {} to {}...", args.db, dir)
     }
 }
