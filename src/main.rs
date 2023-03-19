@@ -1,12 +1,16 @@
 pub mod schema;
 pub mod models;
 
-use diesel::prelude::*;
-use diesel::insert_into;
 use std::fs;
 use std::path::{ Path, PathBuf };
 
 use clap::Parser;
+
+use diesel::prelude::*;
+use diesel::insert_into;
+use diesel_migrations::{ embed_migrations, EmbeddedMigrations, MigrationHarness };
+
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -45,9 +49,7 @@ pub fn find_files_with_extension(root_path: &Path, extension: &str) -> Vec<PathB
 
 /// Establish Connection to Sqlite Database.
 pub fn establish_connection(db_path: &Path) -> SqliteConnection {
-    let final_path = db_path.canonicalize().expect("Valid Database URL required!");
-
-    let database_url: String = format!("file:{}", final_path.display());
+    let database_url: String = format!("file:{}", db_path.display());
 
     SqliteConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
@@ -93,6 +95,8 @@ fn main() {
     let args = Args::parse();
 
     let connection = &mut establish_connection(Path::new(&args.db));
+
+    connection.run_pending_migrations(MIGRATIONS).expect("Database could not be migrated!");
 
     if let Some(dir) = args.import_dir {
         println!("Importing {} to {}...", dir, args.db);
