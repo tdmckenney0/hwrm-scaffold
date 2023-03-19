@@ -1,1 +1,1 @@
-pub mod weapon;
+pub mod weapons;

@@ -61,7 +61,7 @@ pub fn import(connection: &mut SqliteConnection, data_dir: &Path) {
 
     let extension = "wepn";
     let files = find_files_with_extension(data_dir, extension);
-    let mut weapons_to_insert: Vec<models::weapon::StartWeaponConfig> = Vec::new();
+    let mut weapons_to_insert: Vec<models::weapons::weapon::StartWeaponConfig> = Vec::new();
 
     // Delete all weapons first.
     diesel::delete(weapons)
@@ -80,7 +80,7 @@ pub fn import(connection: &mut SqliteConnection, data_dir: &Path) {
             if line.starts_with("StartWeaponConfig") {
                 println!("parsing {}...", weapon_name);
 
-                weapons_to_insert.push(models::weapon::StartWeaponConfig::new(weapon_name.to_string(), line.to_string()));
+                weapons_to_insert.push(models::weapons::weapon::StartWeaponConfig::new(weapon_name.to_string(), line.to_string()));
             }
         }
     }
