@@ -63,7 +63,7 @@ pub struct NewWeaponResult {
 /// Array of `NewWeaponResult` with helper methods.
 #[derive(Debug)]
 pub struct NewWeaponResultCollection {
-    weapon_results: Vec<NewWeaponResult>
+    pub weapon_results: Vec<NewWeaponResult>
 }
 
 impl NewWeaponResultCollection {
@@ -95,14 +95,5 @@ impl NewWeaponResultCollection {
         Self {
             weapon_results
         }
-    }
-
-    /// Append another collection to this one.
-    pub fn append(&mut self, mut other: Self) {
-        self.weapon_results.append(&mut other.weapon_results);
-    }
-
-    pub fn to_vec(&mut self) -> Vec<&NewWeaponResult> {
-        self.weapon_results.iter().map(|wr| wr).collect()
     }
 }

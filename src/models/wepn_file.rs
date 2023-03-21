@@ -51,7 +51,7 @@ impl NewWeaponFile {
 
 #[derive(Debug)]
 pub struct NewWeaponFileCollection {
-    new_weapon_files: Vec<NewWeaponFile>
+    pub new_weapon_files: Vec<NewWeaponFile>
 }
 
 impl NewWeaponFileCollection {
@@ -67,11 +67,14 @@ impl NewWeaponFileCollection {
         use crate::schema::weapons::dsl::*;
         use crate::schema::weapon_results::dsl::*;
 
-        let weapons_to_insert: Vec<&Weapon> = self.new_weapon_files
-                                                    .iter()
-                                                    .map(|new_wepn| &new_wepn.weapon)
-                                                    .collect();
+        let mut weapons_to_insert: Vec<&Weapon> = Vec::new();
+        let mut weapon_results_to_insert: Vec<&NewWeaponResult> = Vec::new();
 
+        for weapon_file in self.new_weapon_files.iter() {
+            weapons_to_insert.push(&weapon_file.weapon);
+
+            weapon_file.weapon_results.weapon_results.iter().for_each(|x| weapon_results_to_insert.push(x));
+        }
 
         // Delete all weapons first.
         diesel::delete(weapon_results)
@@ -87,5 +90,10 @@ impl NewWeaponFileCollection {
             .values(weapons_to_insert)
             .execute(connection)
             .expect("Could not insert weapons!");
+
+        diesel::insert_into(weapon_results)
+            .values(weapon_results_to_insert)
+            .execute(connection)
+            .expect("Could not insert weapon_results!");
     }
 }
