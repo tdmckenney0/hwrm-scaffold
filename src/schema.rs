@@ -3,19 +3,18 @@
 diesel::table! {
     weapon_results (id) {
         id -> Integer,
-        weapon_id -> Integer,
+        weapon_name -> Text,
         condition -> Text,
         effect -> Text,
         target -> Text,
         minimum_effect -> Float,
         maximum_effect -> Float,
-        spawn_weapon_id -> Nullable<Integer>,
+        spawn_weapon_name -> Nullable<Text>,
     }
 }
 
 diesel::table! {
-    weapons (id) {
-        id -> Integer,
+    weapons (name) {
         name -> Text,
         weapon_type -> Text,
         weapon_fire_type -> Text,
@@ -45,7 +44,7 @@ diesel::table! {
     }
 }
 
-diesel::joinable!(weapon_results -> weapons (weapon_id));
+diesel::joinable!(weapon_results -> weapons (weapon_name));
 
 diesel::allow_tables_to_appear_in_same_query!(
     weapon_results,

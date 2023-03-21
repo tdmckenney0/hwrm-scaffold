@@ -6,10 +6,10 @@ use regex::Regex;
 ///
 /// Weapon
 ///
-#[derive(Queryable, Selectable, Identifiable)]
+#[derive(Queryable, Selectable, Identifiable, Default, Insertable)]
 #[diesel(table_name = weapons)]
+#[diesel(primary_key(name))]
 pub struct Weapon {
-    pub id: i32,
     pub name: String,
     pub weapon_type: String,
     pub weapon_fire_type: String,
@@ -70,40 +70,7 @@ impl fmt::Display for Weapon {
     }
 }
 
-/// Parse Result from the `StartWeaponConfig(...)` lua function call.
-/// Can be inserted into `weapons` table.
-#[derive(Default, Insertable)]
-#[diesel(table_name = weapons)]
-pub struct StartWeaponConfig {
-    pub name: String,
-    pub weapon_type: String,
-    pub weapon_fire_type: String,
-    pub weapon_fire_name: String,
-    pub activation: String,
-    pub fire_speed: f32,
-    pub fire_range: f32,
-    pub fire_radius: f32,
-    pub fire_lifetime: f32,
-    pub fire_anticipation_time: f32,
-    pub fire_axis: i32,
-    pub max_effects_spawned: i32,
-    pub lead_target: i32,
-    pub check_line_of_fire: i32,
-    pub fire_time: f32,
-    pub burst_fire_time: f32,
-    pub burst_wait_time: f32,
-    pub shoot_at_secondaries: i32,
-    pub shoot_at_surroundings: i32,
-    pub max_azimuth_speed: f32,
-    pub max_declination_speed: f32,
-    pub speed_multiplier: f32,
-    pub shield_penetration: String,
-    pub track_targets_outside_range: i32,
-    pub wait_for_code_red: f32,
-    pub instant_hit_threshold: i32
-}
-
-impl StartWeaponConfig {
+impl Weapon {
     /// Parse the `StartWeaponConfig(...)` lua call into an instance.
     /// This whole process needs to be optimized at some point.
     pub fn new (name: String, start_weapon_config: String) -> Self {

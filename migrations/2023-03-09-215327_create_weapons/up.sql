@@ -1,7 +1,6 @@
 -- Your SQL goes here
 CREATE TABLE weapons (
-	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	name TEXT NOT NULL DEFAULT "hgn_dummyfrigategun",
+	name TEXT PRIMARY KEY NOT NULL,
 	weapon_type TEXT NOT NULL DEFAULT "Gimble",
 	weapon_fire_type TEXT NOT NULL DEFAULT "Bullet",
 	weapon_fire_name TEXT NOT NULL DEFAULT "kinetic_rapid",
@@ -28,5 +27,3 @@ CREATE TABLE weapons (
 	wait_for_code_red FLOAT NOT NULL DEFAULT 0,
 	instant_hit_threshold  INTEGER NOT NULL DEFAULT 0
 );
-
-CREATE UNIQUE INDEX weapons_name_IDX ON weapons (name);
