@@ -7,8 +7,9 @@ use std::path::{ Path, PathBuf };
 use clap::Parser;
 
 use diesel::prelude::*;
-use diesel::insert_into;
 use diesel_migrations::{ embed_migrations, EmbeddedMigrations, MigrationHarness };
+
+use models::wepn_file:: { NewWeaponFileCollection, NewWeaponFile };
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
@@ -57,38 +58,17 @@ pub fn establish_connection(db_path: &Path) -> SqliteConnection {
 
 /// Import "data" directory into a Sqlite database.
 pub fn import(connection: &mut SqliteConnection, data_dir: &Path) {
-    use crate::schema::weapons::dsl::*;
-
     let extension = "wepn";
     let files = find_files_with_extension(data_dir, extension);
-    let mut weapons_to_insert: Vec<models::weapons::weapon::Weapon> = Vec::new();
-
-    // Delete all weapons first.
-    diesel::delete(weapons)
-        .execute(connection)
-        .expect("Error clearing weapons!");
+    let mut weapon_files: Vec<NewWeaponFile> = Vec::new();
 
     for file in files {
-        let weapon_name = file.file_stem().unwrap().to_str().unwrap();
-
-        let contents = fs::read_to_string(&file)
-            .expect("Should have been able to read the file");
-
-        let lines = contents.lines();
-
-        for line in lines {
-            if line.starts_with("StartWeaponConfig") {
-                println!("parsing {}...", weapon_name);
-
-                weapons_to_insert.push(models::weapons::weapon::Weapon::new(weapon_name.to_string(), line.to_string()));
-            }
-        }
+        weapon_files.push(NewWeaponFile::from_path(file.as_path()));
     }
 
-    insert_into(weapons)
-        .values(weapons_to_insert)
-        .execute(connection)
-        .expect("Could not insert weapons!");
+    let collection = NewWeaponFileCollection::from_vec(weapon_files);
+
+    collection.insert(connection);
 }
 
 fn main() {

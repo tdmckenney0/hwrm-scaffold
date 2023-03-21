@@ -4,9 +4,16 @@ use crate::schema::{weapons};
 use regex::Regex;
 
 ///
+/// Regex's
+///
+pub fn start_weapon_config_regex() -> Regex {
+    Regex::new(r"StartWeaponConfig\(NewWeaponType,\s*(.*)\)").unwrap()
+}
+
+///
 /// Weapon
 ///
-#[derive(Queryable, Selectable, Identifiable, Default, Insertable)]
+#[derive(Queryable, Selectable, Identifiable, Default, Insertable, Debug)]
 #[diesel(table_name = weapons)]
 #[diesel(primary_key(name))]
 pub struct Weapon {
@@ -71,12 +78,11 @@ impl fmt::Display for Weapon {
 }
 
 impl Weapon {
-    /// Parse the `StartWeaponConfig(...)` lua call into an instance.
-    /// This whole process needs to be optimized at some point.
-    pub fn new (name: String, start_weapon_config: String) -> Self {
-        let rx = Regex::new(r"^StartWeaponConfig\(NewWeaponType,\s*(.*)\)").unwrap();
+    /// Create a `Weapon` Model from a `name` and String `body`.
+    pub fn from_string(name: &String, body: &String) -> Self {
+        let rx: Regex = start_weapon_config_regex();
 
-        let args = match rx.captures(&start_weapon_config).unwrap().get(1) {
+        let args = match rx.captures(&body).unwrap().get(1) {
             Some(x) => x.as_str(),
             None => ""
         };
@@ -84,7 +90,7 @@ impl Weapon {
         let split: Vec<&str> = args.split(",").collect::<Vec<&str>>().iter().map(|x| x.trim()).collect();
 
         Self {
-            name,
+            name: name.to_string(),
             weapon_type: split[0].to_string().replace("\"", ""),
             weapon_fire_type: split[1].to_string().replace("\"", ""),
             weapon_fire_name: split[2].to_string().replace("\"", ""),
