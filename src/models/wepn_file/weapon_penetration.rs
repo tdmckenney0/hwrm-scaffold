@@ -9,12 +9,12 @@ use super::weapon::Weapon;
 
 /// Find the `setPenetration(...)` function call in a string, parse into groups.
 pub fn set_penetration_regex() -> Regex {
-    Regex::new(r"setPenetration\(NewWeaponType\s*,([0-9]*)\s*,\s*([0-9]*)\s*,\s*((?:\{[A-Za-z_0-9]*\s*=\s*[0-9.]*\}*\s*,*\s*)*)\)").unwrap()
+    Regex::new(r"setPenetration\(NewWeaponType\s*,([0-9]*)\s*,\s*([0-9]*)\s*,\s*((?:\{[A-Za-z_0-9]*\s*=\s*[0-9.]*,*\}*\s*,*\s*)*)\)").unwrap()
 }
 
 /// Find the armor family arguments in `setPenetration(...)`
 pub fn armor_family_regex() -> Regex {
-    Regex::new(r"\{\s*(\w*)\s*=\s*(\d*\.*\d*)\s*\}").unwrap()
+    Regex::new(r"\{\s*(\w*)\s*=\s*(\d*\.*\d*)\s*,*\}").unwrap()
 }
 
 ///
@@ -71,22 +71,13 @@ impl NewWeaponPenetrationCollection {
             default_penetration = caps_unwrapped.get(2).unwrap().as_str().parse().unwrap_or(0.0);
 
             let family_str = caps_unwrapped.get(3).unwrap().as_str();
-            let family_str_split: Vec<&str> = family_str.split(",").collect::<Vec<&str>>().iter().map(|x| x.trim()).collect();
 
-            for family in family_str_split {
-                let family_caps = rx_family.captures(family);
-
-                if family_caps.is_some() {
-                    let family_caps_unwrapped = family_caps.unwrap();
-
-                    weapon_penetrations.push(NewWeaponPenetration {
-                        weapon_name: weapon_name.to_string(),
-                        armor_family: family_caps_unwrapped.get(1).unwrap().as_str().to_string(),
-                        penetration: family_caps_unwrapped.get(2).unwrap().as_str().parse().unwrap_or(0.0)
-                    });
-                } else {
-                    println!("Could not parse penetration family \"{}\" for {}!", family, weapon_name);
-                }
+            for family in rx_family.captures_iter(family_str) {
+                weapon_penetrations.push(NewWeaponPenetration {
+                    weapon_name: weapon_name.to_string(),
+                    armor_family: family.get(1).unwrap().as_str().to_string(),
+                    penetration: family.get(2).unwrap().as_str().parse().unwrap_or(0.0)
+                });
             }
         } else {
             println!("No weapon penetrations found for: {}!", weapon_name);
