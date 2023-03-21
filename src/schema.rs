@@ -1,6 +1,15 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    weapon_penetrations (id) {
+        id -> Integer,
+        weapon_name -> Text,
+        armor_family -> Text,
+        penetration -> Float,
+    }
+}
+
+diesel::table! {
     weapon_results (id) {
         id -> Integer,
         weapon_name -> Text,
@@ -41,12 +50,16 @@ diesel::table! {
         track_targets_outside_range -> Integer,
         wait_for_code_red -> Float,
         instant_hit_threshold -> Integer,
+        field_penetration -> Integer,
+        default_penetration -> Float,
     }
 }
 
+diesel::joinable!(weapon_penetrations -> weapons (weapon_name));
 diesel::joinable!(weapon_results -> weapons (weapon_name));
 
 diesel::allow_tables_to_appear_in_same_query!(
+    weapon_penetrations,
     weapon_results,
     weapons,
 );
