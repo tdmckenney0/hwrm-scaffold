@@ -1,5 +1,6 @@
 pub mod weapon;
 pub mod weapon_result;
+pub mod weapon_penetration;
 
 use std::path::Path;
 use std::fs;
@@ -7,6 +8,7 @@ use std::fs;
 use diesel::prelude::*;
 
 use weapon_result::{ WeaponResult, NewWeaponResult, NewWeaponResultCollection };
+use weapon_penetration::{ NewWeaponPenetration, NewWeaponPenetrationCollection };
 use weapon::Weapon;
 
 ///
@@ -25,6 +27,7 @@ pub struct WeaponFile {
 pub struct NewWeaponFile {
     weapon: Weapon,
     weapon_results: NewWeaponResultCollection,
+    weapon_penetration: NewWeaponPenetrationCollection
 }
 
 impl NewWeaponFile {
@@ -41,10 +44,12 @@ impl NewWeaponFile {
 
         let weapon = Weapon::from_string(&weapon_name, &contents);
         let weapon_results = NewWeaponResultCollection::from_string(&weapon_name, &contents);
+        let weapon_penetration = NewWeaponPenetrationCollection::from_string(&weapon_name, &contents);
 
         Self {
             weapon,
-            weapon_results
+            weapon_results,
+            weapon_penetration
         }
     }
 }
@@ -66,17 +71,24 @@ impl NewWeaponFileCollection {
     pub fn insert(self, connection: &mut SqliteConnection) {
         use crate::schema::weapons::dsl::*;
         use crate::schema::weapon_results::dsl::*;
+        use crate::schema::weapon_penetrations::dsl::*;
 
         let mut weapons_to_insert: Vec<&Weapon> = Vec::new();
         let mut weapon_results_to_insert: Vec<&NewWeaponResult> = Vec::new();
+        let mut weapon_penetrations_to_insert: Vec<&NewWeaponPenetration> = Vec::new();
 
         for weapon_file in self.new_weapon_files.iter() {
             weapons_to_insert.push(&weapon_file.weapon);
 
             weapon_file.weapon_results.weapon_results.iter().for_each(|x| weapon_results_to_insert.push(x));
+            weapon_file.weapon_penetration.weapon_penetrations.iter().for_each(|x| weapon_penetrations_to_insert.push(x));
         }
 
         // Delete all weapons first.
+        diesel::delete(weapon_penetrations)
+            .execute(connection)
+            .expect("Error clearing weapon_results!");
+
         diesel::delete(weapon_results)
             .execute(connection)
             .expect("Error clearing weapon_results!");
@@ -93,6 +105,11 @@ impl NewWeaponFileCollection {
 
         diesel::insert_into(weapon_results)
             .values(weapon_results_to_insert)
+            .execute(connection)
+            .expect("Could not insert weapon_results!");
+
+        diesel::insert_into(weapon_penetrations)
+            .values(weapon_penetrations_to_insert)
             .execute(connection)
             .expect("Could not insert weapon_results!");
     }
