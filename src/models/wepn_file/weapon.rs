@@ -43,6 +43,10 @@ pub struct Weapon {
     pub track_targets_outside_range: i32,
     pub wait_for_code_red: f32,
     pub instant_hit_threshold: i32,
+
+    /// These are set later by the `setPenetration` call.
+    pub field_penetration: i32,
+    pub default_penetration: f32,
 }
 
 impl fmt::Display for Weapon {
@@ -115,7 +119,9 @@ impl Weapon {
             shield_penetration: split[21].to_string().replace("\"", ""),
             track_targets_outside_range: split[22].parse().unwrap(),
             wait_for_code_red: split[23].parse().unwrap(),
-            instant_hit_threshold: split[24].parse().unwrap()
+            instant_hit_threshold: split[24].parse().unwrap(),
+            field_penetration: 0,
+            default_penetration: 0.0
         }
     }
 }
