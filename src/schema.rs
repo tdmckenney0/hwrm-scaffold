@@ -52,6 +52,7 @@ diesel::table! {
         instant_hit_threshold -> Integer,
         field_penetration -> Integer,
         default_penetration -> Float,
+        default_accuracy -> Float,
     }
 }
 

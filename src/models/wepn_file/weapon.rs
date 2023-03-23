@@ -47,6 +47,9 @@ pub struct Weapon {
     /// These are set later by the `setPenetration` call.
     pub field_penetration: i32,
     pub default_penetration: f32,
+
+    /// These are set later by the `setAccuracy` call.
+    pub default_accuracy: f32
 }
 
 impl fmt::Display for Weapon {
@@ -121,7 +124,8 @@ impl Weapon {
             wait_for_code_red: split[23].parse().unwrap(),
             instant_hit_threshold: split[24].parse().unwrap(),
             field_penetration: 0,
-            default_penetration: 0.0
+            default_penetration: 0.0,
+            default_accuracy: 1.0
         }
     }
 }
