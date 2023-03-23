@@ -46,11 +46,21 @@ impl NewWeaponFile {
         let weapon_results = NewWeaponResultCollection::from_string(&weapon_name, &contents);
         let weapon_penetration = NewWeaponPenetrationCollection::from_string(&weapon_name, &contents);
 
-        Self {
+        let mut new_weapon_file = Self {
             weapon,
             weapon_results,
             weapon_penetration
-        }
+        };
+
+        new_weapon_file.set_weapon_penetration();
+
+        new_weapon_file
+    }
+
+    /// Copies the Weapon Penetration from `weapon_penetration` to `weapon` for saving.
+    pub fn set_weapon_penetration(&mut self) {
+        self.weapon.field_penetration = self.weapon_penetration.field_penetration;
+        self.weapon.default_penetration = self.weapon_penetration.default_penetration;
     }
 }
 
