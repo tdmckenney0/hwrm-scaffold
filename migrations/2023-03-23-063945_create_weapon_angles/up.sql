@@ -7,5 +7,6 @@ CREATE TABLE weapon_angles (
     max_azimuth FLOAT NOT NULL DEFAULT 0.0,
     min_declination FLOAT NOT NULL DEFAULT 0.0,
     max_declination FLOAT NOT NULL DEFAULT 0.0,
-	CONSTRAINT weapon_results_FK FOREIGN KEY (weapon_name) REFERENCES weapons(name) ON DELETE CASCADE ON UPDATE CASCADE
+	CONSTRAINT weapon_results_FK FOREIGN KEY (weapon_name) REFERENCES weapons(name) ON DELETE CASCADE ON UPDATE CASCADE,
+    UNIQUE(weapon_name)
 );
