@@ -23,6 +23,15 @@ diesel::table! {
 }
 
 diesel::table! {
+    weapon_misc (id) {
+        id -> Integer,
+        weapon_name -> Text,
+        recoil_distance -> Float,
+        slave_fire_delay -> Float,
+    }
+}
+
+diesel::table! {
     weapon_penetrations (id) {
         id -> Integer,
         weapon_name -> Text,
@@ -80,12 +89,14 @@ diesel::table! {
 
 diesel::joinable!(weapon_accuracy -> weapons (weapon_name));
 diesel::joinable!(weapon_angles -> weapons (weapon_name));
+diesel::joinable!(weapon_misc -> weapons (weapon_name));
 diesel::joinable!(weapon_penetrations -> weapons (weapon_name));
 diesel::joinable!(weapon_results -> weapons (weapon_name));
 
 diesel::allow_tables_to_appear_in_same_query!(
     weapon_accuracy,
     weapon_angles,
+    weapon_misc,
     weapon_penetrations,
     weapon_results,
     weapons,
