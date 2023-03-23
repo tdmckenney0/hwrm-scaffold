@@ -9,12 +9,12 @@ use super::weapon::Weapon;
 
 /// Find the `setPenetration(...)` function call in a string, parse into groups.
 pub fn set_penetration_regex() -> Regex {
-    Regex::new(r"setPenetration\(NewWeaponType\s*,([0-9]*)\s*,\s*([0-9]*)\s*,\s*((?:\{[A-Za-z_0-9]*\s*=\s*[0-9.]*,*\}*\s*,*\s*)*)\)").unwrap()
+    Regex::new(r"setPenetration\(NewWeaponType\s*,\s*([0-9]*)\s*,\s*([0-9\.]*)\s*,\s*([\sA-za-z0-9=\.\{\},]*)\s*\)").unwrap()
 }
 
 /// Find the armor family arguments in `setPenetration(...)`
 pub fn armor_family_regex() -> Regex {
-    Regex::new(r"\{\s*(\w*)\s*=\s*(\d*\.*\d*)\s*,*\}").unwrap()
+    Regex::new(r"\{\s*(\w*)\s*=\s*(\d*\.*\d*)\s*,*\s*\}").unwrap()
 }
 
 ///
