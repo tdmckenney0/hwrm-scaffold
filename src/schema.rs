@@ -11,6 +11,18 @@ diesel::table! {
 }
 
 diesel::table! {
+    weapon_angles (id) {
+        id -> Integer,
+        weapon_name -> Text,
+        firing_cone -> Float,
+        min_azimuth -> Float,
+        max_azimuth -> Float,
+        min_declination -> Float,
+        max_declination -> Float,
+    }
+}
+
+diesel::table! {
     weapon_penetrations (id) {
         id -> Integer,
         weapon_name -> Text,
@@ -67,11 +79,13 @@ diesel::table! {
 }
 
 diesel::joinable!(weapon_accuracy -> weapons (weapon_name));
+diesel::joinable!(weapon_angles -> weapons (weapon_name));
 diesel::joinable!(weapon_penetrations -> weapons (weapon_name));
 diesel::joinable!(weapon_results -> weapons (weapon_name));
 
 diesel::allow_tables_to_appear_in_same_query!(
     weapon_accuracy,
+    weapon_angles,
     weapon_penetrations,
     weapon_results,
     weapons,
