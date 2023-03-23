@@ -2,6 +2,7 @@ pub mod weapon;
 pub mod weapon_result;
 pub mod weapon_penetration;
 pub mod weapon_accuracy;
+pub mod weapon_angles;
 
 use std::path::Path;
 use std::fs;
@@ -9,8 +10,9 @@ use std::fs;
 use diesel::prelude::*;
 
 use weapon_result::{ WeaponResult, NewWeaponResult, NewWeaponResultCollection };
-use weapon_penetration::{ NewWeaponPenetration, NewWeaponPenetrationCollection };
-use weapon_accuracy::{ NewWeaponAccuracy, NewWeaponAccuracyCollection };
+use weapon_penetration::{ WeaponPenetration, NewWeaponPenetration, NewWeaponPenetrationCollection };
+use weapon_accuracy::{ WeaponAccuracy, NewWeaponAccuracy, NewWeaponAccuracyCollection };
+use weapon_angles::{ WeaponAngles, NewWeaponAngles };
 use weapon::Weapon;
 
 ///
@@ -20,8 +22,9 @@ use weapon::Weapon;
 pub struct WeaponFile {
     weapon: Weapon,
     weapon_results: Vec<WeaponResult>,
-    weapon_penetration: NewWeaponPenetrationCollection,
-    weapon_accuracy: NewWeaponAccuracyCollection
+    weapon_penetration: Vec<WeaponPenetration>,
+    weapon_accuracy: Vec<WeaponAccuracy>,
+    weapon_angles: WeaponAngles
 }
 
 ///
@@ -32,7 +35,8 @@ pub struct NewWeaponFile {
     weapon: Weapon,
     weapon_results: NewWeaponResultCollection,
     weapon_penetration: NewWeaponPenetrationCollection,
-    weapon_accuracy: NewWeaponAccuracyCollection
+    weapon_accuracy: NewWeaponAccuracyCollection,
+    weapon_angles: NewWeaponAngles
 }
 
 impl NewWeaponFile {
@@ -51,12 +55,14 @@ impl NewWeaponFile {
         let weapon_results = NewWeaponResultCollection::from_string(&weapon_name, &contents);
         let weapon_penetration = NewWeaponPenetrationCollection::from_string(&weapon_name, &contents);
         let weapon_accuracy = NewWeaponAccuracyCollection::from_string(&weapon_name, &contents);
+        let weapon_angles = NewWeaponAngles::from_string(&weapon_name, &contents);
 
         let mut new_weapon_file = Self {
             weapon,
             weapon_results,
             weapon_penetration,
-            weapon_accuracy
+            weapon_accuracy,
+            weapon_angles
         };
 
         new_weapon_file.set_weapon_penetration();
@@ -96,14 +102,17 @@ impl NewWeaponFileCollection {
         use crate::schema::weapon_results::dsl::*;
         use crate::schema::weapon_penetrations::dsl::*;
         use crate::schema::weapon_accuracy::dsl::*;
+        use crate::schema::weapon_angles::dsl::*;
 
         let mut weapons_to_insert: Vec<&Weapon> = Vec::new();
         let mut weapon_results_to_insert: Vec<&NewWeaponResult> = Vec::new();
         let mut weapon_penetrations_to_insert: Vec<&NewWeaponPenetration> = Vec::new();
         let mut weapon_accuracies_to_insert: Vec<&NewWeaponAccuracy> = Vec::new();
+        let mut weapon_angles_to_insert: Vec<&NewWeaponAngles> = Vec::new();
 
         for weapon_file in self.new_weapon_files.iter() {
             weapons_to_insert.push(&weapon_file.weapon);
+            weapon_angles_to_insert.push(&weapon_file.weapon_angles);
 
             weapon_file.weapon_results.weapon_results.iter().for_each(|x| weapon_results_to_insert.push(x));
             weapon_file.weapon_penetration.weapon_penetrations.iter().for_each(|x| weapon_penetrations_to_insert.push(x));
@@ -122,6 +131,10 @@ impl NewWeaponFileCollection {
         diesel::delete(weapon_results)
             .execute(connection)
             .expect("Error clearing weapon_results!");
+
+        diesel::delete(weapon_angles)
+            .execute(connection)
+            .expect("Error clearing weapon_angles!");
 
         diesel::delete(weapons)
             .execute(connection)
@@ -147,5 +160,10 @@ impl NewWeaponFileCollection {
             .values(weapon_accuracies_to_insert)
             .execute(connection)
             .expect("Could not insert weapon_accuracies!");
+
+        diesel::insert_into(weapon_angles)
+            .values(weapon_angles_to_insert)
+            .execute(connection)
+            .expect("Could not insert weapon_angles!");
     }
 }
