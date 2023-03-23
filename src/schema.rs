@@ -1,6 +1,16 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    weapon_accuracy (id) {
+        id -> Integer,
+        weapon_name -> Text,
+        armor_family -> Text,
+        accuracy -> Float,
+        damage -> Float,
+    }
+}
+
+diesel::table! {
     weapon_penetrations (id) {
         id -> Integer,
         weapon_name -> Text,
@@ -56,10 +66,12 @@ diesel::table! {
     }
 }
 
+diesel::joinable!(weapon_accuracy -> weapons (weapon_name));
 diesel::joinable!(weapon_penetrations -> weapons (weapon_name));
 diesel::joinable!(weapon_results -> weapons (weapon_name));
 
 diesel::allow_tables_to_appear_in_same_query!(
+    weapon_accuracy,
     weapon_penetrations,
     weapon_results,
     weapons,
