@@ -2,6 +2,7 @@ use regex::Regex;
 use diesel::prelude::*;
 use crate::schema::{weapon_accuracy};
 use super::weapon::Weapon;
+use std::fmt;
 
 ///
 /// Regex's
@@ -29,6 +30,48 @@ pub struct WeaponAccuracy {
     pub armor_family: String,
     pub accuracy: f32,
     pub damage: f32
+}
+
+impl fmt::Display for WeaponAccuracy {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{{{}={}, damage={},}}",
+            self.armor_family,
+            self.accuracy,
+            self.damage
+        )
+    }
+}
+
+/// Collection of `WeaponAccuracy` with helper methods. Has additional arguments for the `setAccuracy` lua call.
+#[derive(Debug)]
+pub struct WeaponAccuracyCollection {
+    pub default_accuracy: f32,
+    pub weapon_accuracies: Vec<WeaponAccuracy>
+}
+
+impl WeaponAccuracyCollection {
+    /// Change a Vector of WeaponAccuracy into a Collection.
+    pub fn from_vec(default_accuracy: f32, weapon_accuracies: Vec<WeaponAccuracy>) -> Self {
+        Self {
+            default_accuracy,
+            weapon_accuracies
+        }
+    }
+}
+
+impl fmt::Display for WeaponAccuracyCollection {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let formatted = self.weapon_accuracies
+                                .iter()
+                                .map(|wa| wa.to_string())
+                                .collect::<Vec<String>>()
+                                .join(",");
+
+        write!(f, "setAccuracy(NewWeaponType,{},{});",
+            self.default_accuracy,
+            formatted
+        )
+    }
 }
 
 ///
