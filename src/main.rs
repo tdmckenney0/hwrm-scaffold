@@ -71,6 +71,11 @@ pub fn import(connection: &mut SqliteConnection, data_dir: &Path) {
     collection.insert(connection);
 }
 
+/// Export "data" directory from the Sqlite Database to the HWRM Data directory.
+pub fn export(connection: &mut SqliteConnection, data_dir: &Path) {
+
+}
+
 fn main() {
     let args = Args::parse();
 
@@ -85,6 +90,8 @@ fn main() {
     }
 
     if let Some(dir) = args.export_dir {
-        println!("Exporting {} to {}...", args.db, dir)
+        println!("Exporting {} to {}...", args.db, dir);
+
+        export(connection, Path::new(&dir));
     }
 }
