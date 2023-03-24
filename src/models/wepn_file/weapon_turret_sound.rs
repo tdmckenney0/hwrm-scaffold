@@ -2,6 +2,7 @@ use regex::Regex;
 use diesel::prelude::*;
 use crate::schema::{weapon_turret_sound};
 use super::weapon::Weapon;
+use std::fmt;
 
 ///
 /// Regex's
@@ -24,6 +25,11 @@ pub struct WeaponTurretSound {
     pub anim_turret_sound: String
 }
 
+impl fmt::Display for WeaponTurretSound {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "addAnimTurretSound(NewWeaponType,\"{}\");", self.anim_turret_sound)
+    }
+}
 
 ///
 /// NewWeaponTurretSound
