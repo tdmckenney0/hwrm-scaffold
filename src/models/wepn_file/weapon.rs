@@ -128,4 +128,20 @@ impl Weapon {
             default_accuracy: 1.0
         }
     }
+
+    /// Get the Weapon File for a specific weapon name. Possible that it can't be found.
+    pub fn get_for_weapon(connection: &mut SqliteConnection, weapon_name: &String) -> Option<Self> {
+        use crate::schema::weapons::dsl::*;
+
+        let res = weapons
+                    .filter(name.eq(weapon_name))
+                    .first(connection)
+                    .optional();
+
+        if let Ok(op) = res {
+            op
+        } else {
+            None
+        }
+    }
 }
