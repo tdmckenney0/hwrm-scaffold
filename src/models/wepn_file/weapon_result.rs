@@ -43,6 +43,40 @@ impl fmt::Display for WeaponResult {
     }
 }
 
+/// Array of `WeaponResult` with helper methods.
+#[derive(Debug)]
+pub struct WeaponResultCollection {
+    pub weapon_results: Vec<WeaponResult>
+}
+
+impl fmt::Display for WeaponResultCollection {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let format = self.weapon_results
+                        .iter()
+                        .map(|wr| wr.to_string())
+                        .collect::<Vec<String>>()
+                        .join("\r\n");
+
+        write!(f, "{}", format)
+    }
+}
+
+impl WeaponResultCollection {
+    /// Get weapon results for a specific weapon name. Possible that it can't be found.
+    pub fn get_for_weapon(connection: &mut SqliteConnection, name: &String) -> Self {
+        use crate::schema::weapon_results::dsl::*;
+
+        let vec = weapon_results
+                    .filter(weapon_name.eq(name))
+                    .load::<WeaponResult>(connection)
+                    .expect("Error loading weapon results!");
+
+        Self {
+            weapon_results: vec
+        }
+    }
+}
+
 ///
 /// NewWeaponResult
 ///
