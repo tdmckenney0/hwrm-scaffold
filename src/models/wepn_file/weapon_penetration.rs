@@ -2,6 +2,7 @@ use regex::Regex;
 use diesel::prelude::*;
 use crate::schema::{weapon_penetrations};
 use super::weapon::Weapon;
+use std::fmt;
 
 ///
 /// Regex's
@@ -28,6 +29,49 @@ pub struct WeaponPenetration {
     pub weapon_name: String,
     pub armor_family: String,
     pub penetration: f32
+}
+
+impl fmt::Display for WeaponPenetration {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{{{}={},}}",
+            self.armor_family,
+            self.penetration
+        )
+    }
+}
+
+#[derive(Debug)]
+pub struct WeaponPenetrationCollection {
+    pub field_penetration: i32,
+    pub default_penetration: f32,
+    pub weapon_penetrations: Vec<WeaponPenetration>
+}
+
+impl WeaponPenetrationCollection {
+    /// Change a Vector of WeaponPenetration into a Collection.
+    pub fn from_vec(field_penetration: i32, default_penetration: f32, weapon_penetrations: Vec<WeaponPenetration>) -> Self {
+        Self {
+            field_penetration,
+            default_penetration,
+            weapon_penetrations
+        }
+    }
+}
+
+impl fmt::Display for WeaponPenetrationCollection {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let formatted = self.weapon_penetrations
+                                .iter()
+                                .map(|wp| wp.to_string())
+                                .collect::<Vec<String>>()
+                                .join(",");
+
+        write!(f, "setPenetration(NewWeaponType,{},{},{});",
+            self.field_penetration,
+            self.default_penetration,
+            formatted
+        )
+    }
 }
 
 ///
