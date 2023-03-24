@@ -54,6 +54,14 @@ diesel::table! {
 }
 
 diesel::table! {
+    weapon_turret_sound (id) {
+        id -> Integer,
+        weapon_name -> Text,
+        anim_turret_sound -> Text,
+    }
+}
+
+diesel::table! {
     weapons (name) {
         name -> Text,
         weapon_type -> Text,
@@ -92,6 +100,7 @@ diesel::joinable!(weapon_angles -> weapons (weapon_name));
 diesel::joinable!(weapon_misc -> weapons (weapon_name));
 diesel::joinable!(weapon_penetrations -> weapons (weapon_name));
 diesel::joinable!(weapon_results -> weapons (weapon_name));
+diesel::joinable!(weapon_turret_sound -> weapons (weapon_name));
 
 diesel::allow_tables_to_appear_in_same_query!(
     weapon_accuracy,
@@ -99,5 +108,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     weapon_misc,
     weapon_penetrations,
     weapon_results,
+    weapon_turret_sound,
     weapons,
 );
