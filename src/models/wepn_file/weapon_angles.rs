@@ -2,6 +2,7 @@ use regex::Regex;
 use diesel::prelude::*;
 use crate::schema::{weapon_angles};
 use super::weapon::Weapon;
+use std::fmt;
 
 ///
 /// Regex's
@@ -26,6 +27,18 @@ pub struct WeaponAngles {
     pub max_azimuth: f32,
     pub min_declination: f32,
     pub max_declination: f32
+}
+
+impl fmt::Display for WeaponAngles {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "setAngles(NewWeaponType,{},{},{},{},{});",
+            self.firing_cone,
+            self.min_azimuth,
+            self.max_azimuth,
+            self.min_declination,
+            self.max_declination
+        )
+    }
 }
 
 ///
