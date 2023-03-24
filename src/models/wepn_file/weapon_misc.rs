@@ -2,6 +2,7 @@ use regex::Regex;
 use diesel::prelude::*;
 use crate::schema::{weapon_misc};
 use super::weapon::Weapon;
+use std::fmt;
 
 ///
 /// Regex's
@@ -25,6 +26,14 @@ pub struct WeaponMisc {
     pub slave_fire_delay: f32
 }
 
+impl fmt::Display for WeaponMisc {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "setMiscValues(NewWeaponType,{},{});",
+            self.recoil_distance,
+            self.slave_fire_delay
+        )
+    }
+}
 
 ///
 /// NewWeaponMisc
