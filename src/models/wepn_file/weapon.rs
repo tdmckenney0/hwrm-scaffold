@@ -145,3 +145,41 @@ impl Weapon {
         }
     }
 }
+
+pub struct WeaponCollection {
+    pub weapons: Vec<Weapon>
+}
+
+impl WeaponCollection {
+    /// Get all Weapons from the Database.
+    pub fn get_all_weapons(connection: &mut SqliteConnection) -> Self {
+        use crate::schema::weapons::dsl::*;
+
+        let weapons_vec = weapons
+                            .load::<Weapon>(connection)
+                            .expect("Could not load weapons table!");
+
+        Self {
+            weapons: weapons_vec
+        }
+    }
+
+    /// Get weapons from a list of weapon_name Strings
+    pub fn get_weapons_from_names(connection: &mut SqliteConnection, weapon_names: Vec<String>) -> Self {
+        use crate::schema::weapons::dsl::*;
+
+        let weapons_vec: Vec<Weapon> = weapons
+                                        .filter(name.eq_any(weapon_names))
+                                        .load::<Weapon>(connection)
+                                        .expect("Could not load weapons table!");
+
+        Self {
+            weapons: weapons_vec
+        }
+    }
+
+    /// Get list of Names
+    pub fn get_names(self) -> Vec<String> {
+        self.weapons.iter().map(|w| String::from(&w.name)).collect()
+    }
+}

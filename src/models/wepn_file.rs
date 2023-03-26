@@ -18,20 +18,20 @@ use weapon_accuracy::{ WeaponAccuracyCollection, NewWeaponAccuracy, NewWeaponAcc
 use weapon_angles::{ WeaponAngles, NewWeaponAngles };
 use weapon_misc::{ WeaponMisc, NewWeaponMisc };
 use weapon_turret_sound::{ WeaponTurretSound, NewWeaponTurretSound };
-use weapon::Weapon;
+use weapon::{ Weapon, WeaponCollection };
 
 ///
 /// Weapon File (*.wepn)
 ///
 #[derive(Debug)]
 pub struct WeaponFile {
-    weapon: Weapon,
-    weapon_results: WeaponResultCollection,
-    weapon_penetration: WeaponPenetrationCollection,
-    weapon_accuracy: WeaponAccuracyCollection,
-    weapon_angles: Option<WeaponAngles>,
-    weapon_misc: Option<WeaponMisc>,
-    weapon_turret_sound: Option<WeaponTurretSound>
+    pub weapon: Weapon,
+    pub weapon_results: WeaponResultCollection,
+    pub weapon_penetration: WeaponPenetrationCollection,
+    pub weapon_accuracy: WeaponAccuracyCollection,
+    pub weapon_angles: Option<WeaponAngles>,
+    pub weapon_misc: Option<WeaponMisc>,
+    pub weapon_turret_sound: Option<WeaponTurretSound>
 }
 
 impl fmt::Display for WeaponFile {
@@ -92,18 +92,54 @@ impl WeaponFile {
     }
 }
 
+pub struct WeaponFileCollection {
+    weapon_files: Vec<WeaponFile>
+}
+
+impl WeaponFileCollection {
+    /// Create Collection from a Vector of "WeaponFile".
+    pub fn from_vec(weapon_files: Vec<WeaponFile>) -> Self {
+        Self {
+            weapon_files
+        }
+    }
+
+    /// Create WeaponFileCollection from a WeaponCollection
+    pub fn from_weapon_collection(weapons: WeaponCollection) -> Self {
+        let weapon_names = weapons.get_names();
+
+        Self {
+            weapon_files: Vec::new()
+        }
+    }
+
+    /// Get all Weapon Files from the Database.
+    pub fn get_all_weapon_files(connection: &mut SqliteConnection) -> Self {
+        let weapons = WeaponCollection::get_all_weapons(connection);
+
+        Self::from_weapon_collection(weapons)
+    }
+
+    /// Get weapon files from a list of weapon_name Strings
+    pub fn get_weapon_files_from_names(connection: &mut SqliteConnection, weapon_names: Vec<String>) -> Self {
+        let weapons = WeaponCollection::get_weapons_from_names(connection, weapon_names);
+
+        Self::from_weapon_collection(weapons)
+    }
+}
+
 ///
 /// NewWeaponFile
 ///
 #[derive(Debug)]
 pub struct NewWeaponFile {
-    weapon: Weapon,
-    weapon_results: NewWeaponResultCollection,
-    weapon_penetration: NewWeaponPenetrationCollection,
-    weapon_accuracy: NewWeaponAccuracyCollection,
-    weapon_angles: Option<NewWeaponAngles>,
-    weapon_misc: Option<NewWeaponMisc>,
-    weapon_turret_sound: Option<NewWeaponTurretSound>
+    pub weapon: Weapon,
+    pub weapon_results: NewWeaponResultCollection,
+    pub weapon_penetration: NewWeaponPenetrationCollection,
+    pub weapon_accuracy: NewWeaponAccuracyCollection,
+    pub weapon_angles: Option<NewWeaponAngles>,
+    pub weapon_misc: Option<NewWeaponMisc>,
+    pub weapon_turret_sound: Option<NewWeaponTurretSound>
 }
 
 impl NewWeaponFile {
