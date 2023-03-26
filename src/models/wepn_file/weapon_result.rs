@@ -62,12 +62,26 @@ impl fmt::Display for WeaponResultCollection {
 }
 
 impl WeaponResultCollection {
-    /// Get weapon results for a specific weapon name. Possible that it can't be found.
+    /// Get weapon results for a specific weapon name.
     pub fn get_for_weapon(connection: &mut SqliteConnection, name: &String) -> Self {
         use crate::schema::weapon_results::dsl::*;
 
         let vec = weapon_results
                     .filter(weapon_name.eq(name))
+                    .load::<WeaponResult>(connection)
+                    .expect("Error loading weapon results!");
+
+        Self {
+            weapon_results: vec
+        }
+    }
+
+    /// Get weapon results for a list of weapon names.
+    pub fn get_for_weapons(connection: &mut SqliteConnection, names: &Vec<String>) -> Self {
+        use crate::schema::weapon_results::dsl::*;
+
+        let vec = weapon_results
+                    .filter(weapon_name.eq_any(names))
                     .load::<WeaponResult>(connection)
                     .expect("Error loading weapon results!");
 
