@@ -35,6 +35,24 @@ impl fmt::Display for WeaponMisc {
     }
 }
 
+impl WeaponMisc {
+    /// Get weapon misc for a specific weapon name. Possible that it can't be found.
+    pub fn get_for_weapon(connection: &mut SqliteConnection, name: &String) -> Option<Self> {
+        use crate::schema::weapon_misc::dsl::*;
+
+        let res = weapon_misc
+                    .filter(weapon_name.eq(name))
+                    .first(connection)
+                    .optional();
+
+        if let Ok(op) = res {
+            op
+        } else {
+            None
+        }
+    }
+}
+
 ///
 /// NewWeaponMisc
 ///
