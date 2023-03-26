@@ -51,6 +51,10 @@ impl fmt::Display for WeaponFile {
             wepn_file.push(misc.to_string());
         }
 
+        if let Some(sound) = &self.weapon_turret_sound {
+            wepn_file.push(sound.to_string());
+        }
+
         write!(f, "{}", wepn_file.join("\r\n\r\n"))
     }
 }
@@ -66,6 +70,7 @@ impl WeaponFile {
             let weapon_accuracy = WeaponAccuracyCollection::get_for_weapon(connection, weapon_name);
             let weapon_angles = WeaponAngles::get_for_weapon(connection, weapon_name);
             let weapon_misc = WeaponMisc::get_for_weapon(connection, weapon_name);
+            let weapon_turret_sound = WeaponTurretSound::get_for_weapon(connection, weapon_name);
 
             Some(Self {
                 weapon,
@@ -74,7 +79,7 @@ impl WeaponFile {
                 weapon_accuracy,
                 weapon_angles,
                 weapon_misc,
-                weapon_turret_sound: None
+                weapon_turret_sound
             })
         } else {
             None

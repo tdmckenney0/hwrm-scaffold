@@ -31,6 +31,24 @@ impl fmt::Display for WeaponTurretSound {
     }
 }
 
+impl WeaponTurretSound {
+    /// Get weapon turret sound for a specific weapon name. Possible that it can't be found.
+    pub fn get_for_weapon(connection: &mut SqliteConnection, name: &String) -> Option<Self> {
+        use crate::schema::weapon_turret_sound::dsl::*;
+
+        let res = weapon_turret_sound
+                    .filter(weapon_name.eq(name))
+                    .first(connection)
+                    .optional();
+
+        if let Ok(op) = res {
+            op
+        } else {
+            None
+        }
+    }
+}
+
 ///
 /// NewWeaponTurretSound
 ///
