@@ -57,13 +57,30 @@ impl WeaponPenetrationCollection {
         }
     }
 
-    /// Get weapon penetraion for a specific weapon name. Possible that it can't be found.
+    /// Get weapon penetration for a specific weapon name. Possible that it can't be found.
     /// TODO: Handle `field_penetration` and `default_penetration`
     pub fn get_for_weapon(connection: &mut SqliteConnection, name: &String) -> Self {
         use crate::schema::weapon_penetrations::dsl::*;
 
         let vec = weapon_penetrations
                     .filter(weapon_name.eq(name))
+                    .load::<WeaponPenetration>(connection)
+                    .expect("Error loading weapon penetration!");
+
+        Self {
+            field_penetration: 0,
+            default_penetration: 0.0,
+            weapon_penetrations: vec
+        }
+    }
+
+    /// Get weapon penetrations for a list of weapon names.
+    /// TODO: Handle `field_penetration` and `default_penetration`
+    pub fn get_for_weapons(connection: &mut SqliteConnection, names: &Vec<String>) -> Self {
+        use crate::schema::weapon_penetrations::dsl::*;
+
+        let vec = weapon_penetrations
+                    .filter(weapon_name.eq_any(names))
                     .load::<WeaponPenetration>(connection)
                     .expect("Error loading weapon penetration!");
 
