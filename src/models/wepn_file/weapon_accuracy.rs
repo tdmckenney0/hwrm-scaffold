@@ -73,6 +73,11 @@ impl WeaponAccuracyCollection {
             weapon_accuracies: vec
         }
     }
+
+    /// Copy the `default_accuracy` value from weapon so it can be exported.
+    pub fn use_default_accuracy(&mut self, weapon: &Weapon) {
+        self.default_accuracy = weapon.default_accuracy;
+    }
 }
 
 impl fmt::Display for WeaponAccuracyCollection {

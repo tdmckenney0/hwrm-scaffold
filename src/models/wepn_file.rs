@@ -12,9 +12,9 @@ use std::fmt;
 
 use diesel::prelude::*;
 
-use weapon_result::{ WeaponResult, WeaponResultCollection, NewWeaponResult, NewWeaponResultCollection };
-use weapon_penetration::{ WeaponPenetration, WeaponPenetrationCollection, NewWeaponPenetration, NewWeaponPenetrationCollection };
-use weapon_accuracy::{ WeaponAccuracy, WeaponAccuracyCollection, NewWeaponAccuracy, NewWeaponAccuracyCollection };
+use weapon_result::{ WeaponResultCollection, NewWeaponResult, NewWeaponResultCollection };
+use weapon_penetration::{ WeaponPenetrationCollection, NewWeaponPenetration, NewWeaponPenetrationCollection };
+use weapon_accuracy::{ WeaponAccuracyCollection, NewWeaponAccuracy, NewWeaponAccuracyCollection };
 use weapon_angles::{ WeaponAngles, NewWeaponAngles };
 use weapon_misc::{ WeaponMisc, NewWeaponMisc };
 use weapon_turret_sound::{ WeaponTurretSound, NewWeaponTurretSound };
@@ -66,11 +66,16 @@ impl WeaponFile {
 
         if let Some(weapon) = some_weapon {
             let weapon_results = WeaponResultCollection::get_for_weapon(connection, weapon_name);
-            let weapon_penetration = WeaponPenetrationCollection::get_for_weapon(connection, weapon_name);
-            let weapon_accuracy = WeaponAccuracyCollection::get_for_weapon(connection, weapon_name);
+            let mut weapon_penetration = WeaponPenetrationCollection::get_for_weapon(connection, weapon_name);
+            let mut weapon_accuracy = WeaponAccuracyCollection::get_for_weapon(connection, weapon_name);
             let weapon_angles = WeaponAngles::get_for_weapon(connection, weapon_name);
             let weapon_misc = WeaponMisc::get_for_weapon(connection, weapon_name);
             let weapon_turret_sound = WeaponTurretSound::get_for_weapon(connection, weapon_name);
+
+            // Copy default values from `Weapon` model into collections for ease of exporting.
+            weapon_accuracy.use_default_accuracy(&weapon);
+            weapon_penetration.use_field_penetration(&weapon);
+            weapon_penetration.use_default_penetration(&weapon);
 
             Some(Self {
                 weapon,

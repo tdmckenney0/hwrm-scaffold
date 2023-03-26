@@ -73,6 +73,16 @@ impl WeaponPenetrationCollection {
             weapon_penetrations: vec
         }
     }
+
+    /// Copy the `field_penetration` value into collection so it can be exported.
+    pub fn use_field_penetration(&mut self, weapon: &Weapon) {
+        self.field_penetration = weapon.field_penetration;
+    }
+
+    /// Copy the `default_penetration` value into collection so it can be exported.
+    pub fn use_default_penetration(&mut self, weapon: &Weapon) {
+        self.default_penetration = weapon.default_penetration;
+    }
 }
 
 impl fmt::Display for WeaponPenetrationCollection {
