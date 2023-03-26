@@ -41,6 +41,24 @@ impl fmt::Display for WeaponAngles {
     }
 }
 
+impl WeaponAngles {
+    /// Get weapon angles for a specific weapon name. Possible that it can't be found.
+    pub fn get_for_weapon(connection: &mut SqliteConnection, name: &String) -> Option<Self> {
+        use crate::schema::weapon_angles::dsl::*;
+
+        let res = weapon_angles
+                    .filter(weapon_name.eq(name))
+                    .first(connection)
+                    .optional();
+
+        if let Ok(op) = res {
+            op
+        } else {
+            None
+        }
+    }
+}
+
 ///
 /// NewWeaponAngles
 ///
@@ -60,17 +78,21 @@ pub struct NewWeaponAngles {
 impl NewWeaponAngles {
     /// Parse the `setAngles(...)` lua call into an instance.
     /// This whole process needs to be optimized at some point.
-    pub fn from_string(weapon_name: &String, body: &String) -> Self {
+    pub fn from_string(weapon_name: &String, body: &String) -> Option<Self> {
         let rx = set_angles_regex();
-        let caps = rx.captures(body).unwrap();
+        let some_caps = rx.captures(body);
 
-        NewWeaponAngles {
-            weapon_name: weapon_name.to_string(),
-            firing_cone: caps.get(1).unwrap().as_str().parse().unwrap_or(0.0),
-            min_azimuth: caps.get(2).unwrap().as_str().parse().unwrap_or(0.0),
-            max_azimuth: caps.get(3).unwrap().as_str().parse().unwrap_or(0.0),
-            min_declination: caps.get(4).unwrap().as_str().parse().unwrap_or(0.0),
-            max_declination: caps.get(5).unwrap().as_str().parse().unwrap_or(0.0)
+        if let Some(caps) = some_caps {
+            Some(NewWeaponAngles {
+                weapon_name: weapon_name.to_string(),
+                firing_cone: caps.get(1).unwrap().as_str().parse().unwrap_or(0.0),
+                min_azimuth: caps.get(2).unwrap().as_str().parse().unwrap_or(0.0),
+                max_azimuth: caps.get(3).unwrap().as_str().parse().unwrap_or(0.0),
+                min_declination: caps.get(4).unwrap().as_str().parse().unwrap_or(0.0),
+                max_declination: caps.get(5).unwrap().as_str().parse().unwrap_or(0.0)
+            })
+        } else {
+            None
         }
     }
 }

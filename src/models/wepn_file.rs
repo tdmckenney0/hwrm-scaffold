@@ -8,12 +8,13 @@ pub mod weapon_turret_sound;
 
 use std::path::Path;
 use std::fs;
+use std::fmt;
 
 use diesel::prelude::*;
 
-use weapon_result::{ WeaponResult, NewWeaponResult, NewWeaponResultCollection };
-use weapon_penetration::{ WeaponPenetration, NewWeaponPenetration, NewWeaponPenetrationCollection };
-use weapon_accuracy::{ WeaponAccuracy, NewWeaponAccuracy, NewWeaponAccuracyCollection };
+use weapon_result::{ WeaponResult, WeaponResultCollection, NewWeaponResult, NewWeaponResultCollection };
+use weapon_penetration::{ WeaponPenetration, WeaponPenetrationCollection, NewWeaponPenetration, NewWeaponPenetrationCollection };
+use weapon_accuracy::{ WeaponAccuracy, WeaponAccuracyCollection, NewWeaponAccuracy, NewWeaponAccuracyCollection };
 use weapon_angles::{ WeaponAngles, NewWeaponAngles };
 use weapon_misc::{ WeaponMisc, NewWeaponMisc };
 use weapon_turret_sound::{ WeaponTurretSound, NewWeaponTurretSound };
@@ -25,12 +26,55 @@ use weapon::Weapon;
 #[derive(Debug)]
 pub struct WeaponFile {
     weapon: Weapon,
-    weapon_results: Vec<WeaponResult>,
-    weapon_penetration: Vec<WeaponPenetration>,
-    weapon_accuracy: Vec<WeaponAccuracy>,
-    weapon_angles: WeaponAngles,
+    weapon_results: WeaponResultCollection,
+    weapon_penetration: WeaponPenetrationCollection,
+    weapon_accuracy: WeaponAccuracyCollection,
+    weapon_angles: Option<WeaponAngles>,
     weapon_misc: Option<WeaponMisc>,
     weapon_turret_sound: Option<WeaponTurretSound>
+}
+
+impl fmt::Display for WeaponFile {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut wepn_file: Vec<String> = Vec::new();
+
+        wepn_file.push(self.weapon.to_string());
+        wepn_file.push(self.weapon_results.to_string());
+        wepn_file.push(self.weapon_penetration.to_string());
+        wepn_file.push(self.weapon_accuracy.to_string());
+
+        if let Some(angles) = &self.weapon_angles {
+            wepn_file.push(angles.to_string());
+        }
+
+        write!(f, "{}", wepn_file.join("\r\n\r\n"))
+    }
+}
+
+impl WeaponFile {
+    // Get the Weapon File for a specific weapon name. Possible that it can't be found.
+    pub fn get_for_weapon(connection: &mut SqliteConnection, weapon_name: &String) -> Option<Self> {
+        let some_weapon: Option<Weapon> = Weapon::get_for_weapon(connection, weapon_name);
+
+        if let Some(weapon) = some_weapon {
+            let weapon_results = WeaponResultCollection::get_for_weapon(connection, weapon_name);
+            let weapon_penetration = WeaponPenetrationCollection::get_for_weapon(connection, weapon_name);
+            let weapon_accuracy = WeaponAccuracyCollection::get_for_weapon(connection, weapon_name);
+            let weapon_angles = WeaponAngles::get_for_weapon(connection, weapon_name);
+
+            Some(Self {
+                weapon,
+                weapon_results,
+                weapon_penetration,
+                weapon_accuracy,
+                weapon_angles,
+                weapon_misc: None,
+                weapon_turret_sound: None
+            })
+        } else {
+            None
+        }
+    }
 }
 
 ///
@@ -42,7 +86,7 @@ pub struct NewWeaponFile {
     weapon_results: NewWeaponResultCollection,
     weapon_penetration: NewWeaponPenetrationCollection,
     weapon_accuracy: NewWeaponAccuracyCollection,
-    weapon_angles: NewWeaponAngles,
+    weapon_angles: Option<NewWeaponAngles>,
     weapon_misc: Option<NewWeaponMisc>,
     weapon_turret_sound: Option<NewWeaponTurretSound>
 }
@@ -128,7 +172,10 @@ impl NewWeaponFileCollection {
 
         for weapon_file in self.new_weapon_files.iter() {
             weapons_to_insert.push(&weapon_file.weapon);
-            weapon_angles_to_insert.push(&weapon_file.weapon_angles);
+
+            if let Some(angles) = &weapon_file.weapon_angles {
+                weapon_angles_to_insert.push(angles);
+            }
 
             if let Some(sound) = &weapon_file.weapon_turret_sound {
                 weapon_turret_sounds_to_insert.push(sound);
