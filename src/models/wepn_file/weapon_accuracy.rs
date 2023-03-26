@@ -57,6 +57,22 @@ impl WeaponAccuracyCollection {
             weapon_accuracies
         }
     }
+
+    /// Get weapon accuracy for a specific weapon name. Possible that it can't be found.
+    /// TODO: Handle `default_accuracy`
+    pub fn get_for_weapon(connection: &mut SqliteConnection, name: &String) -> Self {
+        use crate::schema::weapon_accuracy::dsl::*;
+
+        let vec = weapon_accuracy
+                    .filter(weapon_name.eq(name))
+                    .load::<WeaponAccuracy>(connection)
+                    .expect("Error loading weapon accuracy!");
+
+        Self {
+            default_accuracy: 0.0,
+            weapon_accuracies: vec
+        }
+    }
 }
 
 impl fmt::Display for WeaponAccuracyCollection {
