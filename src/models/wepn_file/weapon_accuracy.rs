@@ -51,6 +51,14 @@ pub struct WeaponAccuracyCollection {
 }
 
 impl WeaponAccuracyCollection {
+    /// Return a new empty instance
+    pub fn new() -> Self {
+        Self {
+            default_accuracy: 1.0,
+            weapon_accuracies: Vec::new()
+        }
+    }
+
     /// Change a Vector of WeaponAccuracy into a Collection.
     pub fn from_vec(default_accuracy: f32, weapon_accuracies: Vec<WeaponAccuracy>) -> Self {
         Self {

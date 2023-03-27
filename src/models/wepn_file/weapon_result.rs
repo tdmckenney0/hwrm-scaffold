@@ -63,6 +63,13 @@ impl fmt::Display for WeaponResultCollection {
 }
 
 impl WeaponResultCollection {
+    /// Return a new empty instance
+    pub fn new() -> Self {
+        Self {
+            weapon_results: Vec::new()
+        }
+    }
+
     /// Get weapon results for a specific weapon name.
     pub fn get_for_weapon(connection: &mut SqliteConnection, name: &String) -> Self {
         use crate::schema::weapon_results::dsl::*;

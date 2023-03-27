@@ -49,6 +49,15 @@ pub struct WeaponPenetrationCollection {
 }
 
 impl WeaponPenetrationCollection {
+    /// Return a new empty instance
+    pub fn new() -> Self {
+        Self {
+            field_penetration: 0,
+            default_penetration: 0.0,
+            weapon_penetrations: Vec::new()
+        }
+    }
+
     /// Change a Vector of WeaponPenetration into a Collection.
     pub fn from_vec(field_penetration: i32, default_penetration: f32, weapon_penetrations: Vec<WeaponPenetration>) -> Self {
         Self {
