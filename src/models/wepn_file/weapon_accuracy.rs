@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use crate::schema::{weapon_accuracy};
 use super::weapon::Weapon;
 use std::fmt;
+use std::collections::HashMap;
 
 ///
 /// Regex's
@@ -93,6 +94,28 @@ impl WeaponAccuracyCollection {
     /// Copy the `default_accuracy` value from weapon so it can be exported.
     pub fn use_default_accuracy(&mut self, weapon: &Weapon) {
         self.default_accuracy = weapon.default_accuracy;
+    }
+
+    /// Consume the collection, divide into HashMap by `weapon_name`
+    pub fn key_by_weapon_name(self) -> HashMap<String, Self> {
+        let mut weapon_accuracies: Vec<WeaponAccuracy> = self.weapon_accuracies;
+        let mut map = HashMap::new();
+
+        while let Some(wa) = weapon_accuracies.pop() {
+            if !map.contains_key(&wa.weapon_name) {
+                map.insert(wa.weapon_name.to_string(), Self {
+                    default_accuracy: self.default_accuracy,
+                    weapon_accuracies: vec![wa]
+                });
+            } else {
+                map
+                    .get_mut(&wa.weapon_name)
+                    .expect("Could not find key??")
+                    .weapon_accuracies.push(wa);
+            }
+        }
+
+        map
     }
 }
 

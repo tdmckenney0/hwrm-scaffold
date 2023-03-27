@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use crate::schema::{weapon_results};
 use regex::Regex;
 use super::weapon::Weapon;
+use std::collections::HashMap;
 
 ///
 /// Regex's
@@ -88,6 +89,27 @@ impl WeaponResultCollection {
         Self {
             weapon_results: vec
         }
+    }
+
+    /// Consume the collection, divide into HashMap by `weapon_name`
+    pub fn key_by_weapon_name(self) -> HashMap<String, Self> {
+        let mut weapon_results: Vec<WeaponResult> = self.weapon_results;
+        let mut map = HashMap::new();
+
+        while let Some(wr) = weapon_results.pop() {
+            if !map.contains_key(&wr.weapon_name) {
+                map.insert(wr.weapon_name.to_string(), Self {
+                    weapon_results: vec![wr]
+                });
+            } else {
+                map
+                    .get_mut(&wr.weapon_name)
+                    .expect("Could not find key??")
+                    .weapon_results.push(wr);
+            }
+        }
+
+        map
     }
 }
 
