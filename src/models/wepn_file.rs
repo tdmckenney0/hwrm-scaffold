@@ -99,11 +99,32 @@ pub struct WeaponFileCollection {
 
 impl WeaponFileCollection {
     /// Create WeaponFileCollection from a WeaponCollection
-    pub fn from_weapon_collection(connection: &mut SqliteConnection, weapons: WeaponCollection) -> Self {
+    pub fn from_weapon_collection(connection: &mut SqliteConnection, mut weapons: WeaponCollection) -> Self {
         let weapon_names = weapons.get_names();
+        let mut weapon_files = HashMap::new();
+
+        let mut all_weapon_results = WeaponResultCollection::get_for_weapons(connection, &weapon_names).key_by_weapon_name();
+        let mut all_weapon_penetrations = WeaponPenetrationCollection::get_for_weapons(connection, &weapon_names).key_by_weapon_name();
+        let mut all_weapon_accuracies = WeaponAccuracyCollection::get_for_weapons(connection, &weapon_names).key_by_weapon_name();
+
+        for (name, w) in weapons.weapons.drain() {
+            let weapon_penetration = all_weapon_penetrations.remove(&name).unwrap_or(WeaponPenetrationCollection::new());
+            let weapon_results = all_weapon_results.remove(&name).unwrap_or(WeaponResultCollection::new());
+            let weapon_accuracy = all_weapon_accuracies.remove(&name).unwrap_or(WeaponAccuracyCollection::new());
+
+            weapon_files.insert(name.to_string(), WeaponFile {
+                weapon: w,
+                weapon_results,
+                weapon_penetration,
+                weapon_accuracy,
+                weapon_angles: None,
+                weapon_misc: None,
+                weapon_turret_sound: None
+            });
+        }
 
         Self {
-            weapon_files: HashMap::new()
+            weapon_files
         }
     }
 
