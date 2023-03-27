@@ -9,6 +9,7 @@ pub mod weapon_turret_sound;
 use std::path::Path;
 use std::fs;
 use std::fmt;
+use std::collections::HashMap;
 
 use diesel::prelude::*;
 
@@ -93,23 +94,16 @@ impl WeaponFile {
 }
 
 pub struct WeaponFileCollection {
-    weapon_files: Vec<WeaponFile>
+    pub weapon_files: HashMap<String, WeaponFile>
 }
 
 impl WeaponFileCollection {
-    /// Create Collection from a Vector of "WeaponFile".
-    pub fn from_vec(weapon_files: Vec<WeaponFile>) -> Self {
-        Self {
-            weapon_files
-        }
-    }
-
     /// Create WeaponFileCollection from a WeaponCollection
-    pub fn from_weapon_collection(weapons: WeaponCollection) -> Self {
+    pub fn from_weapon_collection(connection: &mut SqliteConnection, weapons: WeaponCollection) -> Self {
         let weapon_names = weapons.get_names();
 
         Self {
-            weapon_files: Vec::new()
+            weapon_files: HashMap::new()
         }
     }
 
@@ -117,14 +111,14 @@ impl WeaponFileCollection {
     pub fn get_all_weapon_files(connection: &mut SqliteConnection) -> Self {
         let weapons = WeaponCollection::get_all_weapons(connection);
 
-        Self::from_weapon_collection(weapons)
+        Self::from_weapon_collection(connection, weapons)
     }
 
     /// Get weapon files from a list of weapon_name Strings
     pub fn get_weapon_files_from_names(connection: &mut SqliteConnection, weapon_names: Vec<String>) -> Self {
         let weapons = WeaponCollection::get_weapons_from_names(connection, weapon_names);
 
-        Self::from_weapon_collection(weapons)
+        Self::from_weapon_collection(connection, weapons)
     }
 }
 
