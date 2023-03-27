@@ -9,8 +9,6 @@ use clap::Parser;
 use diesel::prelude::*;
 use diesel_migrations::{ embed_migrations, EmbeddedMigrations, MigrationHarness };
 
-use models::wepn_file:: { NewWeaponFileCollection, NewWeaponFile };
-
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
 #[derive(Parser)]
@@ -58,6 +56,8 @@ pub fn establish_connection(db_path: &Path) -> SqliteConnection {
 
 /// Import "data" directory into a Sqlite database.
 pub fn import(connection: &mut SqliteConnection, data_dir: &Path) {
+    use models::wepn_file:: { NewWeaponFileCollection, NewWeaponFile };
+
     let extension = "wepn";
     let files = find_files_with_extension(data_dir, extension);
     let mut weapon_files: Vec<NewWeaponFile> = Vec::new();
