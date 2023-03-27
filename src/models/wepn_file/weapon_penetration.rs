@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use crate::schema::{weapon_penetrations};
 use super::weapon::Weapon;
 use std::fmt;
+use std::collections::HashMap;
 
 ///
 /// Regex's
@@ -99,6 +100,29 @@ impl WeaponPenetrationCollection {
     /// Copy the `default_penetration` value into collection so it can be exported.
     pub fn use_default_penetration(&mut self, weapon: &Weapon) {
         self.default_penetration = weapon.default_penetration;
+    }
+
+    /// Consume the collection, divide into HashMap by `weapon_name`
+    pub fn key_by_weapon_name(self) -> HashMap<String, Self> {
+        let mut weapon_penetrations: Vec<WeaponPenetration> = self.weapon_penetrations;
+        let mut map = HashMap::new();
+
+        while let Some(wp) = weapon_penetrations.pop() {
+            if !map.contains_key(&wp.weapon_name) {
+                map.insert(wp.weapon_name.to_string(), Self {
+                    field_penetration: self.field_penetration,
+                    default_penetration: self.default_penetration,
+                    weapon_penetrations: vec![wp]
+                });
+            } else {
+                map
+                    .get_mut(&wp.weapon_name)
+                    .expect("Could not find key??")
+                    .weapon_penetrations.push(wp);
+            }
+        }
+
+        map
     }
 }
 
