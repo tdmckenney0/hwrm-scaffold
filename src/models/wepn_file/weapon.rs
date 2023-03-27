@@ -2,6 +2,7 @@ use std::fmt;
 use diesel::prelude::*;
 use crate::schema::{weapons};
 use regex::Regex;
+use std::collections::HashMap;
 
 ///
 /// Regex's
@@ -147,7 +148,7 @@ impl Weapon {
 }
 
 pub struct WeaponCollection {
-    pub weapons: Vec<Weapon>
+    pub weapons: HashMap<String, Weapon>
 }
 
 impl WeaponCollection {
@@ -155,12 +156,18 @@ impl WeaponCollection {
     pub fn get_all_weapons(connection: &mut SqliteConnection) -> Self {
         use crate::schema::weapons::dsl::*;
 
-        let weapons_vec = weapons
+        let mut weapons_vec = weapons
                             .load::<Weapon>(connection)
                             .expect("Could not load weapons table!");
 
+        let mut weapons_map = HashMap::new();
+
+        while let Some(w) = weapons_vec.pop() {
+            weapons_map.insert(w.name.to_string(), w);
+        }
+
         Self {
-            weapons: weapons_vec
+            weapons: weapons_map
         }
     }
 
@@ -168,18 +175,24 @@ impl WeaponCollection {
     pub fn get_weapons_from_names(connection: &mut SqliteConnection, weapon_names: Vec<String>) -> Self {
         use crate::schema::weapons::dsl::*;
 
-        let weapons_vec: Vec<Weapon> = weapons
-                                        .filter(name.eq_any(weapon_names))
-                                        .load::<Weapon>(connection)
-                                        .expect("Could not load weapons table!");
+        let mut weapons_vec = weapons
+                            .filter(name.eq_any(weapon_names))
+                            .load::<Weapon>(connection)
+                            .expect("Could not load weapons table!");
+
+        let mut weapons_map = HashMap::new();
+
+        while let Some(w) = weapons_vec.pop() {
+            weapons_map.insert(w.name.to_string(), w);
+        }
 
         Self {
-            weapons: weapons_vec
+            weapons: weapons_map
         }
     }
 
     /// Get list of Names
-    pub fn get_names(self) -> Vec<String> {
-        self.weapons.iter().map(|w| String::from(&w.name)).collect()
+    pub fn get_names(&self) -> Vec<String> {
+        self.weapons.keys().map(|n| n.to_string()).collect()
     }
 }
