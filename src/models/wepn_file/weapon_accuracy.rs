@@ -129,13 +129,20 @@ impl WeaponAccuracyCollection {
 
 impl fmt::Display for WeaponAccuracyCollection {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let formatted = self.weapon_accuracies
+        let accuracies = self.weapon_accuracies
                                 .iter()
                                 .map(|wa| wa.to_string())
-                                .collect::<Vec<String>>()
-                                .join(",");
+                                .collect::<Vec<String>>();
 
-        write!(f, "setAccuracy(NewWeaponType,{},{});",
+        let joined = accuracies.join(",");
+
+        let formatted = if accuracies.is_empty() {
+            joined
+        } else {
+            format!(",{}", joined)
+        };
+
+        write!(f, "setAccuracy(NewWeaponType,{}{});",
             self.default_accuracy,
             formatted
         )

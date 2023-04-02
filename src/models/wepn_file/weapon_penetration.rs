@@ -137,13 +137,20 @@ impl WeaponPenetrationCollection {
 
 impl fmt::Display for WeaponPenetrationCollection {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let formatted = self.weapon_penetrations
+        let penetrations = self.weapon_penetrations
                                 .iter()
                                 .map(|wp| wp.to_string())
-                                .collect::<Vec<String>>()
-                                .join(",");
+                                .collect::<Vec<String>>();
 
-        write!(f, "setPenetration(NewWeaponType,{},{},{});",
+        let joined = penetrations.join(",");
+
+        let formatted = if penetrations.is_empty() {
+            joined
+        } else {
+            format!(",{}", joined)
+        };
+
+        write!(f, "setPenetration(NewWeaponType,{},{}{});",
             self.field_penetration,
             self.default_penetration,
             formatted
