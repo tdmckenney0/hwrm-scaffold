@@ -73,7 +73,16 @@ pub fn import(connection: &mut SqliteConnection, data_dir: &Path) {
 
 /// Export "data" directory from the Sqlite Database to the HWRM Data directory.
 pub fn export(connection: &mut SqliteConnection, data_dir: &Path) {
+    use models::wepn_file::{ WeaponFileCollection };
 
+    let wepn_files = WeaponFileCollection::get_all_weapon_files(connection);
+    let weapon_dir = data_dir.join("weapon");
+
+    for (name, wepn) in wepn_files.weapon_files.iter() {
+        println!("writing... {}", name);
+
+        wepn.write_to_weapon_dir(&weapon_dir).expect("Could not write to disk!");
+    }
 }
 
 fn main() {
