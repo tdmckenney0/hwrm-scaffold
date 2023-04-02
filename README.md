@@ -12,6 +12,14 @@ Scaffold is a tool for developing mods for Homeworld: Remastered. Currently, it 
 4. Once it finishes, you should have a `test.sqlite` file that you can inspect with any SQL tool that supports sqlite. I recommend [dBeaver](https://dbeaver.io/) or [HeidiSQL](https://www.heidisql.com/).
 5. When you're finished with the database, use `cargo run -- --db test.sqlite --export-dir <PATH_TO_DATA_DIR>` to write the files back to the `Data/` directory.
 
+### Documentation
+
+You can automatically generate and display documentation with `cargo doc --open`
+
+### Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md)
+
 ## Usage
 
 Scaffold is a command line tool, so you'll need to familize yourself with your platforms' terminal. The tool can be added to your `PATH` or aliased to easily call up from any directory.
