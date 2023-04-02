@@ -22,7 +22,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Usage
 
-Scaffold is a command line tool, so you'll need to familize yourself with your platforms' terminal. The tool can be added to your `PATH` or aliased to easily call up from any directory.
+Scaffold is a command line tool, so you'll need to familize yourself with your platforms' terminal. The tool can be added to your `PATH` or aliased to easily call up from any directory. The tool generates a `sqlite` database that can be used with any number of programs that work with SQL or SQLite directly. See [https://www.sqlite.org/](https://www.sqlite.org/) for more information.
 
 ```
 Usage: hwrm-scaffold [OPTIONS] --db <DB>
@@ -34,6 +34,26 @@ Options:
   -h, --help                     Print help
   -V, --version                  Print version
 ```
+
+To create or update the database file, you can pass a new file name, or open an existing one. 
+
+```
+hwrm-scaffold -d my_mod.sqlite
+```
+
+To import a Homeworld Remastered (or Homeworld 2) `Data/` directory:
+
+```
+hwrm-scaffold -d my_mod.sqlite -i path/to/my/homeworldrm/data/
+```
+
+Scaffold will read the directory and deposit the data it finds into `my_mod.sqlite`. You can then make changes, run queries, create new weapons, etc. When finished, the database can be exported to the same directory:
+
+```
+hwrm-scaffold -d my_mod.sqlite -e path/to/my/homeworldrm/data/
+```
+
+It is recommended that you keep your mod files in a `git` repository so that you can track the changes you make!
 
 ## Depedencies
 
