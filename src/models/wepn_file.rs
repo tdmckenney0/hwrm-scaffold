@@ -157,12 +157,17 @@ impl WeaponFileCollection {
         let mut all_weapon_turret_sounds = WeaponTurretSoundCollection::get_for_weapons(connection, &weapon_names);
 
         for (name, w) in weapons.weapons.drain() {
-            let weapon_penetration = all_weapon_penetrations.remove(&name).unwrap_or(WeaponPenetrationCollection::new());
+            let mut weapon_penetration = all_weapon_penetrations.remove(&name).unwrap_or(WeaponPenetrationCollection::new());
+            let mut weapon_accuracy = all_weapon_accuracies.remove(&name).unwrap_or(WeaponAccuracyCollection::new());
             let weapon_results = all_weapon_results.remove(&name).unwrap_or(WeaponResultCollection::new());
-            let weapon_accuracy = all_weapon_accuracies.remove(&name).unwrap_or(WeaponAccuracyCollection::new());
             let weapon_angles = all_weapon_angles.weapon_angles.remove(&name);
             let weapon_misc = all_weapon_misc.weapon_misc.remove(&name);
             let weapon_turret_sound = all_weapon_turret_sounds.weapon_turret_sounds.remove(&name);
+
+            // Copy default values from `Weapon` model into collections for ease of exporting.
+            weapon_accuracy.use_default_accuracy(&w);
+            weapon_penetration.use_field_penetration(&w);
+            weapon_penetration.use_default_penetration(&w);
 
             weapon_files.insert(name.to_string(), WeaponFile {
                 weapon: w,
