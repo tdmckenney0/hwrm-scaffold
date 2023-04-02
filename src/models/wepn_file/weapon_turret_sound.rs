@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use crate::schema::{weapon_turret_sound};
 use super::weapon::Weapon;
 use std::fmt;
+use std::collections::HashMap;
 
 ///
 /// Regex's
@@ -45,6 +46,32 @@ impl WeaponTurretSound {
             op
         } else {
             None
+        }
+    }
+}
+
+pub struct WeaponTurretSoundCollection {
+    pub weapon_turret_sounds: HashMap<String, WeaponTurretSound>
+}
+
+impl WeaponTurretSoundCollection {
+    /// Get weapon misc for a list of weapon names.
+    pub fn get_for_weapons(connection: &mut SqliteConnection, names: &Vec<String>) -> Self {
+        use crate::schema::weapon_turret_sound::dsl::*;
+
+        let mut vec = weapon_turret_sound
+                    .filter(weapon_name.eq_any(names))
+                    .load::<WeaponTurretSound>(connection)
+                    .expect("Error loading weapon turret sounds!");
+
+        let mut map = HashMap::new();
+
+        for sound in vec.drain(..) {
+            map.insert(sound.weapon_name.to_string(), sound);
+        }
+
+        Self {
+            weapon_turret_sounds: map
         }
     }
 }
