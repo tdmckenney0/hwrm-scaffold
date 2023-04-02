@@ -7,6 +7,7 @@ pub mod weapon_misc;
 pub mod weapon_turret_sound;
 
 use std::path::Path;
+use std::io::prelude::*;
 use std::fs;
 use std::fmt;
 use std::collections::HashMap;
@@ -89,6 +90,51 @@ impl WeaponFile {
             })
         } else {
             None
+        }
+    }
+
+    /// Write WeaponFile to disk.
+    pub fn write_to_disk(&self, path: &Path) -> Result<(), &str> {
+        if !path.is_dir() {
+            if let Ok(mut file) = fs::File::create(path) {
+                let res = file.write_all(self.to_string().as_bytes());
+
+                if res.is_err() {
+                    Err("Could not write to file!")
+                } else {
+                    Ok(())
+                }
+            } else {
+                Err("Could not open file!")
+            }
+        } else {
+            Err("Cannot write *.wepn file to a directory!")
+        }
+    }
+
+    /// Write WeaponFile out to a directory.
+    pub fn write_to_dir(&self, dir: &Path) -> Result<(), &str> {
+        if dir.is_dir() {
+            let wepn_file = dir.join(format!("{}.wepn", self.weapon.name));
+
+            self.write_to_disk(wepn_file.as_path())
+        } else {
+            Err("Could write weapon file to directory!")
+        }
+    }
+
+    /// Write out the weapon file to the "weapon" directory. This creates the containment directory for the weapon as well.
+    pub fn write_to_weapon_dir(&self, weapon_dir: &Path) -> Result<(), &str> {
+        if weapon_dir.is_dir() {
+            let containment_dir = weapon_dir.join(self.weapon.name.as_str());
+
+            if !containment_dir.exists() {
+                fs::create_dir(&containment_dir).expect("Could not create weapon containment directory!");
+            }
+
+            self.write_to_dir(containment_dir.as_path())
+        } else {
+            Err("Path is not a directory!")
         }
     }
 }
