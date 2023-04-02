@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use crate::schema::{weapon_angles};
 use super::weapon::Weapon;
 use std::fmt;
+use std::collections::HashMap;
 
 ///
 /// Regex's
@@ -55,6 +56,32 @@ impl WeaponAngles {
             op
         } else {
             None
+        }
+    }
+}
+
+pub struct WeaponAnglesCollection {
+    pub weapon_angles: HashMap<String, WeaponAngles>
+}
+
+impl WeaponAnglesCollection {
+    /// Get weapon angles for a list of weapon names.
+    pub fn get_for_weapons(connection: &mut SqliteConnection, names: &Vec<String>) -> Self {
+        use crate::schema::weapon_angles::dsl::*;
+
+        let mut vec = weapon_angles
+                    .filter(weapon_name.eq_any(names))
+                    .load::<WeaponAngles>(connection)
+                    .expect("Error loading weapon angles!");
+
+        let mut map = HashMap::new();
+
+        for angles in vec.drain(..) {
+            map.insert(angles.weapon_name.to_string(), angles);
+        }
+
+        Self {
+            weapon_angles: map
         }
     }
 }
