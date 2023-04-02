@@ -22,6 +22,12 @@ use weapon_misc::{ WeaponMisc, NewWeaponMisc, WeaponMiscCollection };
 use weapon_turret_sound::{ WeaponTurretSound, NewWeaponTurretSound, WeaponTurretSoundCollection };
 use weapon::{ Weapon, WeaponCollection };
 
+/// Add Watermark to the top of the file.
+pub const WEAPON_FILE_HEADER: &str = r#"-- Created with Scaffold
+-- https://github.com/tdmckenney0/hwrm-scaffold
+-- Pull Requests and Issues welcome!
+"#;
+
 ///
 /// Weapon File (*.wepn)
 ///
@@ -57,7 +63,9 @@ impl fmt::Display for WeaponFile {
             wepn_file.push(sound.to_string());
         }
 
-        write!(f, "{}", wepn_file.join("\r\n\r\n"))
+        let joined = wepn_file.join("\r\n\r\n");
+
+        write!(f, "{}{}", WEAPON_FILE_HEADER, joined)
     }
 }
 
