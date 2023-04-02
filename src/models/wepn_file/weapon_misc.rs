@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use crate::schema::{weapon_misc};
 use super::weapon::Weapon;
 use std::fmt;
+use std::collections::HashMap;
 
 ///
 /// Regex's
@@ -49,6 +50,32 @@ impl WeaponMisc {
             op
         } else {
             None
+        }
+    }
+}
+
+pub struct WeaponMiscCollection {
+    pub weapon_misc: HashMap<String, WeaponMisc>
+}
+
+impl WeaponMiscCollection {
+    /// Get weapon misc for a list of weapon names.
+    pub fn get_for_weapons(connection: &mut SqliteConnection, names: &Vec<String>) -> Self {
+        use crate::schema::weapon_misc::dsl::*;
+
+        let mut vec = weapon_misc
+                    .filter(weapon_name.eq_any(names))
+                    .load::<WeaponMisc>(connection)
+                    .expect("Error loading weapon misc!");
+
+        let mut map = HashMap::new();
+
+        for misc in vec.drain(..) {
+            map.insert(misc.weapon_name.to_string(), misc);
+        }
+
+        Self {
+            weapon_misc: map
         }
     }
 }
