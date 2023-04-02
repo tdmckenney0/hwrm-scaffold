@@ -19,7 +19,7 @@ use weapon_penetration::{ WeaponPenetrationCollection, NewWeaponPenetration, New
 use weapon_accuracy::{ WeaponAccuracyCollection, NewWeaponAccuracy, NewWeaponAccuracyCollection };
 use weapon_angles::{ WeaponAngles, NewWeaponAngles, WeaponAnglesCollection };
 use weapon_misc::{ WeaponMisc, NewWeaponMisc, WeaponMiscCollection };
-use weapon_turret_sound::{ WeaponTurretSound, NewWeaponTurretSound };
+use weapon_turret_sound::{ WeaponTurretSound, NewWeaponTurretSound, WeaponTurretSoundCollection };
 use weapon::{ Weapon, WeaponCollection };
 
 ///
@@ -154,6 +154,7 @@ impl WeaponFileCollection {
         let mut all_weapon_accuracies = WeaponAccuracyCollection::get_for_weapons(connection, &weapon_names).key_by_weapon_name();
         let mut all_weapon_angles = WeaponAnglesCollection::get_for_weapons(connection, &weapon_names);
         let mut all_weapon_misc = WeaponMiscCollection::get_for_weapons(connection, &weapon_names);
+        let mut all_weapon_turret_sounds = WeaponTurretSoundCollection::get_for_weapons(connection, &weapon_names);
 
         for (name, w) in weapons.weapons.drain() {
             let weapon_penetration = all_weapon_penetrations.remove(&name).unwrap_or(WeaponPenetrationCollection::new());
@@ -161,6 +162,7 @@ impl WeaponFileCollection {
             let weapon_accuracy = all_weapon_accuracies.remove(&name).unwrap_or(WeaponAccuracyCollection::new());
             let weapon_angles = all_weapon_angles.weapon_angles.remove(&name);
             let weapon_misc = all_weapon_misc.weapon_misc.remove(&name);
+            let weapon_turret_sound = all_weapon_turret_sounds.weapon_turret_sounds.remove(&name);
 
             weapon_files.insert(name.to_string(), WeaponFile {
                 weapon: w,
@@ -169,7 +171,7 @@ impl WeaponFileCollection {
                 weapon_accuracy,
                 weapon_angles,
                 weapon_misc,
-                weapon_turret_sound: None
+                weapon_turret_sound
             });
         }
 
