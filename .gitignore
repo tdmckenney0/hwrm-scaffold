@@ -1,3 +1,11 @@
+# Build Files
 /target
-*.sqlite*
+
+# Environment files
 *.env
+
+# Databases
+*.sqlite*
+
+# Temporary files
+tmp/
